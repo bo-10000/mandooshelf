@@ -1,10 +1,12 @@
 ---
 title: ""
 date:
+published_at: ""
 source: ""
 url: ""
 tags: []
 status: unread
+read_at: ""
 ---
 
 ## 한 줄 요약

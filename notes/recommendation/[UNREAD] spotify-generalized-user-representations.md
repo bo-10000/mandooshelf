@@ -1,6 +1,7 @@
 ---
 title: "Generalized User Representations for Large-Scale Recommendations"
 date: 2026-11-21
+published_at: 2025-09-18
 source: "Spotify Research (RecSys 2025 Industry)"
 url: "https://research.atspotify.com/2025/9/generalized-user-representations-for-large-scale-recommendations"
 tags: [recommendation, user-representation, embedding, cold-start, transfer-learning, search]

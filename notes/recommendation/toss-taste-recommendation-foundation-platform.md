@@ -1,10 +1,12 @@
 ---
 title: "TASTE, 토스의 추천 파운데이션 플랫폼"
 date: 2026-11-21
+published_at: 2026-11-09
 source: "TOSS Tech"
 url: "https://toss.tech/article/taste"
 tags: [recommendation, foundation-model, multi-task-learning, embedding, targeting, personalization]
 status: read
+read_at: 2026-11-21
 ---
 
 ## 한 줄 요약

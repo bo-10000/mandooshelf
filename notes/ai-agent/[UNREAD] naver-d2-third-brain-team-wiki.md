@@ -1,6 +1,7 @@
 ---
 title: "부족한 건 모델이 아니라 팀 문서였다: 팀 공유 지식층 Third Brain 구축기"
 date: 2026-11-19
+published_at: 2026-11-19
 source: "NAVER D2"
 url: "https://d2.naver.com/helloworld/2622882"
 tags: [ai-agent, llm, wiki, documentation, knowledge-management, claude-code, naver-engineering-day]
