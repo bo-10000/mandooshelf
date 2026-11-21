@@ -15,12 +15,22 @@ status: unread
 
 ## 큰 그림
 
-| | 학습 데이터 | 실시간 서빙 | 이번 발표에서의 위치 |
-| --- | --- | --- | --- |
-| 기존(AS-IS) | 지면별 로그만 (홈피드 모델은 홈피드 로그만) | 가능 | 같은 사람을 지면마다 처음 보는 사람처럼 대함 |
-| FM(LYNX) | 전 지면 데이터로 학습한 초거대 모델 | **불가** — 무거워서 오프라인 배치 추론만 | 답안지(클릭 점수)를 미리 만들어 두는 역할 |
-| VM(Vertical Model) | **똑같이 전 지면 유저 행동 시퀀스**를 학습 | **가능** — 경량화하고 리트리버 4종·통합 랭커로 쪼갬 | **발표의 본체. 위 +20% 성과는 여기서 나온다** |
-| FM KD(지식 전이) | FM이 매긴 점수를 VM 학습에 증류 | VM 서빙은 그대로 | 위에 얹는 확장 트랙, 효과는 대조군으로 따로 측정 중 |
+- **기존(AS-IS)**
+  - 학습 데이터: 지면별 로그만 (홈피드 모델은 홈피드 로그만)
+  - 실시간 서빙: 가능
+  - 이번 발표에서의 위치: 같은 사람을 지면마다 처음 보는 사람처럼 대함
+- **FM(LYNX)**
+  - 학습 데이터: 전 지면 데이터로 학습한 초거대 모델
+  - 실시간 서빙: **불가** — 무거워서 오프라인 배치 추론만
+  - 이번 발표에서의 위치: 답안지(클릭 점수)를 미리 만들어 두는 역할
+- **VM(Vertical Model)**
+  - 학습 데이터: **똑같이 전 지면 유저 행동 시퀀스**를 학습
+  - 실시간 서빙: **가능** — 경량화하고 리트리버 4종·통합 랭커로 쪼갬
+  - 이번 발표에서의 위치: **발표의 본체. 위 +20% 성과는 여기서 나온다**
+- **FM KD(지식 전이)**
+  - 학습 데이터: FM이 매긴 점수를 VM 학습에 증류
+  - 실시간 서빙: VM 서빙은 그대로
+  - 이번 발표에서의 위치: 위에 얹는 확장 트랙, 효과는 대조군으로 따로 측정 중
 
 - 기존과 VM의 차이는 "지면별 모델이냐"가 아니라 **무엇을 먹고 학습했느냐**다. VM은 홈피드·클립뷰어·클립탭이 **같은 파이프라인(리트리버 4종 + 통합 랭커)을 함께 쓰고**, 배포·튜닝만 지면 성격에 맞게 조정한다.
 - 개발 배경: 한 사용자의 하루가 홈피드(육아 글 클릭) → 검색('후쿠오카 날씨') → 클립(야구 하이라이트) → 광고(유아용품) → 쇼핑(여행 가방)처럼 지면을 넘나드는데, 지면별 로그만 보면 다른 지면에서 드러난 관심사를 쓰지 못한다.
@@ -34,14 +44,24 @@ status: unread
 
 내부 수식은 빼고 **무엇을 하는지 한 줄 + 기반 논문**만 남긴다.
 
-| 구성 | 한 줄 역할 | 기반 논문 |
-| --- | --- | --- |
-| **HSTU_DCAMS** (리트리버) | 유저의 액션 시퀀스(클릭만 / 끝까지 시청 / SKIP)를 그대로 먹고 다음에 볼 아이템 후보를 뽑는다. 소비 강도와 행동 순서를 보존하는 게 강점 | *Actions Speak Louder than Words: Trillion-Parameter Sequential Transducers for Generative Recommendations* (2024) |
-| **AlphaRec** (리트리버) | 제목·본문 같은 텍스트를 LLM 임베딩으로 읽어 **신규(콜드) 아이템도 바로** 후보에 올린다. 이력이 적은 유저는 자연어 프로필로 보완 | *Language Representations Can Be What Recommenders Need* (2025), *IRA: Adaptive Interest-aware Representation and Alignment for Personalized Multi-interest Retrieval* (2025), *Dual-Intext Space Representation Optimization for Recommendation* (2026) |
-| **PLUM** (리트리버) | 아이템을 계층적 시맨틱 ID(코드)로 표현하고, 그 코드를 생성해 후보를 찾는다. 큰 주제 코드부터 좁혀 가는 생성형 검색 | *Recommender Systems with Generative Retrieval* (2023), *PLUM: Adapting Pre-trained Language Models for Industrial-scale Generative Recommendations* (2025) |
-| **HexaGraph** (리트리버) | 클립·포스트·블로그·카페·작성자를 한 이종 그래프로 묶어, 함께 본 이웃으로 후보를 확장한다 | *RankGraph: Unified Heterogeneous Graph Learning for Cross-Domain Recommendation* (2025) |
-| **HSTU_DCAMS 통합 랭커** | 4종 후보를 한 번에 점수 매겨 최종 순서를 정한다. 후보마다 유저 이력 중 어디에 주목할지 다시 계산하는 2단계 랭커 | 같은 HSTU 계열 (위 2024 논문) |
-| **FM KD** | FM이 매긴 클릭 점수의 **순서**를 VM 학습에 보조 신호로 증류한다 (아래 6절) | *ExFM* (2025) |
+- **HSTU_DCAMS** (리트리버)
+  - 역할: 유저의 액션 시퀀스(클릭만 / 끝까지 시청 / SKIP)를 그대로 먹고 다음에 볼 아이템 후보를 뽑는다. 소비 강도와 행동 순서를 보존하는 게 강점
+  - 기반 논문: *Actions Speak Louder than Words: Trillion-Parameter Sequential Transducers for Generative Recommendations* (2024)
+- **AlphaRec** (리트리버)
+  - 역할: 제목·본문 같은 텍스트를 LLM 임베딩으로 읽어 **신규(콜드) 아이템도 바로** 후보에 올린다. 이력이 적은 유저는 자연어 프로필로 보완
+  - 기반 논문: *Language Representations Can Be What Recommenders Need* (2025), *IRA: Adaptive Interest-aware Representation and Alignment for Personalized Multi-interest Retrieval* (2025), *Dual-Intext Space Representation Optimization for Recommendation* (2026)
+- **PLUM** (리트리버)
+  - 역할: 아이템을 계층적 시맨틱 ID(코드)로 표현하고, 그 코드를 생성해 후보를 찾는다. 큰 주제 코드부터 좁혀 가는 생성형 검색
+  - 기반 논문: *Recommender Systems with Generative Retrieval* (2023), *PLUM: Adapting Pre-trained Language Models for Industrial-scale Generative Recommendations* (2025)
+- **HexaGraph** (리트리버)
+  - 역할: 클립·포스트·블로그·카페·작성자를 한 이종 그래프로 묶어, 함께 본 이웃으로 후보를 확장한다
+  - 기반 논문: *RankGraph: Unified Heterogeneous Graph Learning for Cross-Domain Recommendation* (2025)
+- **HSTU_DCAMS 통합 랭커**
+  - 역할: 4종 후보를 한 번에 점수 매겨 최종 순서를 정한다. 후보마다 유저 이력 중 어디에 주목할지 다시 계산하는 2단계 랭커
+  - 기반 논문: 같은 HSTU 계열 (위 2024 논문)
+- **FM KD**
+  - 역할: FM이 매긴 클릭 점수의 **순서**를 VM 학습에 보조 신호로 증류한다 (아래 6절)
+  - 기반 논문: *ExFM* (2025)
 
 - 왜 4종을 같이 쓰나: 잘하는 게 서로 달라서다(행동 순서 / 텍스트·콜드스타트 / 코드 생성 / 그래프 관계). 후보를 합친 뒤 랭커가 고르고, 각자의 약점(신규 아이템·행동 순서·인기 편향 등)을 서로 메운다.
 
@@ -51,11 +71,9 @@ ABT(Control 대비). **+20%대 수치는 FM 증류가 아니라 "전 지면 시�
 
 **실제 서비스 적용(채택)**
 
-| 지면 | 지표 |
-| --- | --- |
-| 홈피드 | CTR **+20.0%**, 인당 클릭 **+20.6%** |
-| 클립뷰어 | 재생수 **+2.0%**, 재생시간 **+2.8%** |
-| 클립탭 | CTR **+7.3%**, 인당 클릭 **+25.6%** |
+- **홈피드**: CTR **+20.0%**, 인당 클릭 **+20.6%**
+- **클립뷰어**: 재생수 **+2.0%**, 재생시간 **+2.8%**
+- **클립탭**: CTR **+7.3%**, 인당 클릭 **+25.6%**
 
 **실험 진행 중**
 
