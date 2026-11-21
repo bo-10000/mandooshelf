@@ -5,20 +5,20 @@
 
 ## 📂 카테고리
 
-- [**recommendation**](notes/recommendation/) · 추천 시스템·개인화·랭킹·파운데이션 모델 (읽음 2 / 전체 6)
-- [**ai-agent**](notes/ai-agent/) · AI 에이전트·LLM 활용·팀 지식 (읽음 0 / 전체 1)
+- [**recommendation**](recommendation/) · 추천 시스템·개인화·랭킹·파운데이션 모델 (읽음 2 / 전체 6)
+- [**ai-agent**](ai-agent/) · AI 에이전트·LLM 활용·팀 지식 (읽음 0 / 전체 1)
 
 ## 📌 안 읽은 글 (5)
 
-- [LLM을 활용한 유저 프로파일링과 개인화 추천 (2025)](notes/recommendation/%5BUNREAD%5D%20kakao-llm-user-profiling-personalized-recommendation%20(2025).md) · kakao tech · if(kakao)25
-- [Foundation Model for Personalized Recommendation (2025)](notes/recommendation/%5BUNREAD%5D%20netflix-foundation-model-personalized-recommendation%20(2025).md) · Netflix TechBlog
-- [PinFM: Foundation Model for User Activity Sequences (2025)](notes/recommendation/%5BUNREAD%5D%20pinterest-pinfm-user-activity-sequence-foundation-model%20(2025).md) · Pinterest · arXiv 2507.12704
-- [Generalized User Representations for Large-Scale Recommendations (2025)](notes/recommendation/%5BUNREAD%5D%20spotify-generalized-user-representations%20(2025).md) · Spotify Research · RecSys 2025
-- [부족한 건 모델이 아니라 팀 문서였다: 팀 공유 지식층 Third Brain 구축기 (2026)](notes/ai-agent/%5BUNREAD%5D%20naver-d2-third-brain-team-wiki%20(2026).md) · NAVER D2
+- [LLM을 활용한 유저 프로파일링과 개인화 추천 (2025)](recommendation/%5BUNREAD%5D%20kakao-llm-user-profiling-personalized-recommendation%20(2025).md) · kakao tech · if(kakao)25
+- [Foundation Model for Personalized Recommendation (2025)](recommendation/%5BUNREAD%5D%20netflix-foundation-model-personalized-recommendation%20(2025).md) · Netflix TechBlog
+- [PinFM: Foundation Model for User Activity Sequences (2025)](recommendation/%5BUNREAD%5D%20pinterest-pinfm-user-activity-sequence-foundation-model%20(2025).md) · Pinterest · arXiv 2507.12704
+- [Generalized User Representations for Large-Scale Recommendations (2025)](recommendation/%5BUNREAD%5D%20spotify-generalized-user-representations%20(2025).md) · Spotify Research · RecSys 2025
+- [부족한 건 모델이 아니라 팀 문서였다: 팀 공유 지식층 Third Brain 구축기 (2026)](ai-agent/%5BUNREAD%5D%20naver-d2-third-brain-team-wiki%20(2026).md) · NAVER D2
 
 ## 📝 관리 규칙
 
-- 새 글은 `templates/note-template.md`를 복사해 `notes/{category}/[UNREAD] {slug} (YYYY).md`로 추가합니다. `(YYYY)`는 글의 발행연도입니다.
+- 새 글은 `templates/note-template.md`를 복사해 `{category}/[UNREAD] {slug} (YYYY).md`로 추가합니다. `(YYYY)`는 글의 발행연도입니다.
 - 읽고 정리를 마치면 파일명에서 `[UNREAD] `를 떼고 ` (YYYY)`는 그대로 두며, frontmatter를 `status: read`로 바꿉니다.
 - 같은 글을 이 「안 읽은 글」 목록에서 빼고, 해당 카테고리의 편수(읽음/전체)를 함께 갱신합니다.
 - 새 글을 추가하거나 읽음 처리할 때는 그 카테고리 폴더의 `README.md`도 함께 갱신합니다 — 읽은 글은 제목 + 요점 한 줄, 안 읽은 글은 제목만 적습니다.
