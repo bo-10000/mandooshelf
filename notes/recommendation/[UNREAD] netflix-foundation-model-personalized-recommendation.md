@@ -1,6 +1,5 @@
 ---
 title: "Foundation Model for Personalized Recommendation"
-date: 2026-11-21
 published_at: 2025-03-21
 source: "Netflix TechBlog"
 url: "https://netflixtechblog.com/foundation-model-for-personalized-recommendation-1a0bd8e02d39"

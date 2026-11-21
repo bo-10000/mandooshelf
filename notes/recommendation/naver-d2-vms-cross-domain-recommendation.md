@@ -1,6 +1,5 @@
 ---
 title: "흩어진 행동을 연결하다: 네이버 전 지면의 사용자 행동을 학습하는 추천 모델 개발기"
-date: 2026-11-16
 published_at: 2026-11-16
 source: "NAVER D2"
 url: "https://d2.naver.com/helloworld/1599966"

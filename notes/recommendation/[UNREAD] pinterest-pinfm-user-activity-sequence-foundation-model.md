@@ -1,6 +1,5 @@
 ---
 title: "PinFM: Foundation Model for User Activity Sequences at a Billion-scale Visual Discovery Platform"
-date: 2026-11-21
 published_at: 2025-07
 source: "Pinterest · arXiv 2507.12704"
 url: "https://pith.science/paper/2507.12704"

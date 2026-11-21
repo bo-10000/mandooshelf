@@ -1,6 +1,5 @@
 ---
 title: ""
-date:
 published_at: ""
 source: ""
 url: ""
