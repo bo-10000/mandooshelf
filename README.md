@@ -21,3 +21,4 @@
 - 새 글은 `templates/note-template.md`를 복사해 `notes/{category}/[UNREAD] {slug}.md`로 추가합니다.
 - 읽고 정리를 마치면 파일명에서 `[UNREAD] `를 떼고, frontmatter를 `status: read`로 바꿉니다.
 - 같은 글을 이 「안 읽은 글」 목록에서 빼고, 해당 카테고리의 편수(읽음/전체)를 함께 갱신합니다.
+- 새 글을 추가하거나 읽음 처리할 때는 그 카테고리 폴더의 `README.md`도 함께 갱신합니다 — 읽은 글은 제목 + 요점 한 줄, 안 읽은 글은 제목만 적습니다.
