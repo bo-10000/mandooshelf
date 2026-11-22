@@ -44,7 +44,24 @@ const description = note.source ? `${note.title} — ${note.source}` : note.titl
       }
     </div>
 
-    <h1 class="note-title">{note.title}</h1>
+    <div class="note-title-row">
+      <h1 class="note-title">{note.title}</h1>
+      <button
+        class="copy-button"
+        type="button"
+        data-copy-title={note.title}
+        aria-label="제목 복사"
+        title="제목 복사"
+      >
+        <svg class="copy-button__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+          <path d="M5 15V5a2 2 0 0 1 2-2h8"></path>
+        </svg>
+        <svg class="copy-button__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m5 13 4 4 10-10"></path>
+        </svg>
+      </button>
+    </div>
 
     <div class="note-meta">
       {
@@ -109,3 +126,48 @@ const description = note.source ? `${note.title} — ${note.source}` : note.titl
     <a class="backlink" style="margin:0" href={listHref}>← {note.categoryTitle} 목록으로</a>
   </footer>
 </BaseLayout>
+
+<script>
+  const COPY_LABEL = '제목 복사';
+  const COPIED_LABEL = '복사됨';
+
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-title]').forEach((button) => {
+    let timer: number | undefined;
+    button.addEventListener('click', async () => {
+      const title = button.dataset.copyTitle ?? '';
+      if (!title) return;
+
+      let copied = false;
+      try {
+        await navigator.clipboard.writeText(title);
+        copied = true;
+      } catch {
+        // 클립보드 API가 막혔을 때(구형·비보안 컨텍스트) 예전 방식으로 대신한다.
+        const holder = document.createElement('textarea');
+        holder.value = title;
+        holder.setAttribute('readonly', '');
+        holder.style.position = 'fixed';
+        holder.style.top = '-1000px';
+        document.body.appendChild(holder);
+        holder.select();
+        try {
+          copied = document.execCommand('copy');
+        } catch {
+          copied = false;
+        }
+        holder.remove();
+      }
+
+      if (!copied) return;
+      button.classList.add('is-copied');
+      button.setAttribute('aria-label', COPIED_LABEL);
+      button.title = COPIED_LABEL;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        button.classList.remove('is-copied');
+        button.setAttribute('aria-label', COPY_LABEL);
+        button.title = COPY_LABEL;
+      }, 1500);
+    });
+  });
+</script>

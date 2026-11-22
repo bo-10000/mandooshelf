@@ -628,8 +628,16 @@ p {
   margin-left: 3px;
 }
 
+.filter__search-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
 .filter__search {
-  flex: 1 1 200px;
+  flex: 1 1 auto;
   min-width: 0;
   display: flex;
   align-items: center;
@@ -640,6 +648,34 @@ p {
   border: 1px solid var(--line);
   border-radius: 9px;
   color: var(--muted);
+}
+
+.filter__submit {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+}
+
+.filter__submit:hover {
+  color: var(--fg);
+  background: var(--surface);
+  border-color: var(--line-strong);
+}
+
+.filter__submit svg {
+  width: 15px;
+  height: 15px;
 }
 
 .filter__search:focus-within {
@@ -768,6 +804,12 @@ p {
   padding-top: 9px;
 }
 
+.filter__foot-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .filter__reset {
   appearance: none;
   border: 0;
@@ -818,6 +860,64 @@ p {
   font-size: clamp(1.5rem, 1.15rem + 1.7vw, 2rem);
   margin-top: 12px;
   letter-spacing: -0.028em;
+}
+
+.note-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.note-title-row .note-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-top: 0;
+}
+
+.copy-button {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-top: 4px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+}
+
+.copy-button:hover {
+  color: var(--fg);
+  background: var(--surface-2);
+  border-color: var(--line);
+}
+
+.copy-button svg {
+  width: 15px;
+  height: 15px;
+}
+
+.copy-button__check {
+  display: none;
+}
+
+.copy-button.is-copied {
+  color: var(--accent);
+}
+
+.copy-button.is-copied .copy-button__icon {
+  display: none;
+}
+
+.copy-button.is-copied .copy-button__check {
+  display: block;
 }
 
 .note-meta {
@@ -1168,6 +1268,19 @@ html.dark .astro-code span {
   }
   .summary + .section {
     margin-top: 24px;
+  }
+  /* iOS Safari는 폰트가 16px 미만인 입력·셀렉트에 포커스하면 화면을 확대한다. */
+  .filter__search {
+    height: 38px;
+  }
+  .filter__search input {
+    font-size: 16px;
+  }
+  .filter__submit {
+    height: 38px;
+  }
+  .select {
+    font-size: 16px;
   }
   .prose {
     font-size: 15px;

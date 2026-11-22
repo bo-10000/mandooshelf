@@ -197,6 +197,18 @@ function init(container: HTMLElement) {
     });
   }
 
+  // 검색 버튼/Enter: 지금 입력한 값으로 바로 적용하고 모바일 키보드를 닫는다.
+  const searchForm = root.querySelector<HTMLFormElement>('[data-search-form]');
+  if (searchForm) {
+    searchForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!searchInput) return;
+      state.q = searchInput.value;
+      apply();
+      searchInput.blur();
+    });
+  }
+
   if (sortSelect) {
     sortSelect.addEventListener('change', () => {
       state.sort = sortSelect.value;
