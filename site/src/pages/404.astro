@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { href } from '../lib/notes';
+---
+
+<BaseLayout title="페이지를 찾을 수 없습니다" description="요청한 페이지가 없습니다.">
+  <header class="page-head">
+    <p class="eyebrow">404</p>
+    <h1 class="page-head__title">페이지를 찾을 수 없습니다</h1>
+    <p class="page-head__desc">주소가 바뀌었거나 아직 없는 글이에요.</p>
+    <div class="note-actions">
+      <a class="button button--primary" href={href('/')}>홈으로</a>
+      <a class="button" href={href('search/')}>전체 글 검색</a>
+    </div>
+  </header>
+</BaseLayout>

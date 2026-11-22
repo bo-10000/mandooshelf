@@ -1,0 +1,16 @@
+{
+  "name": "mandooshelf-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "mandooshelf — 테크 글 아카이브 정적 사이트",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "astro": "^5.0.0"
+  }
+}

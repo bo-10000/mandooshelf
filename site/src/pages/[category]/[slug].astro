@@ -1,0 +1,111 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getAllNotes, href, type Note } from '../../lib/notes';
+
+export async function getStaticPaths() {
+  const notes = await getAllNotes();
+  return notes.map((note) => ({
+    params: { category: note.category, slug: note.slug },
+    props: { note },
+  }));
+}
+
+interface Props {
+  note: Note;
+}
+
+const { note } = Astro.props;
+const entry = await getEntry('notes', note.id);
+if (!entry) throw new Error(`노트를 찾지 못했습니다: ${note.id}`);
+const { Content } = await render(entry);
+
+const description = `${note.title}${note.source ? ` — ${note.source}` : ''} 정리 노트.`;
+---
+
+<BaseLayout title={note.title} description={description} type="article">
+  <a class="backlink" href={href(`${note.category}/`)}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m15 18-6-6 6-6"></path>
+    </svg>
+    {note.categoryTitle}
+  </a>
+
+  <header class="note-header">
+    <div class="note-card__top">
+      <a class="badge badge--category" href={href(`${note.category}/`)}>{note.categoryTitle}</a>
+      {
+        note.isRead ? (
+          <span class="badge badge--read"><span class="badge__dot" aria-hidden="true" />읽음</span>
+        ) : (
+          <span class="badge badge--unread"><span class="badge__dot" aria-hidden="true" />안 읽음</span>
+        )
+      }
+    </div>
+
+    <h1 class="note-title">{note.title}</h1>
+
+    <div class="note-meta">
+      {
+        note.source && (
+          <span class="note-meta__pair">
+            <span class="note-meta__key">출처</span>
+            <span class="note-meta__value">{note.source}</span>
+          </span>
+        )
+      }
+      {
+        note.published && (
+          <span class="note-meta__pair">
+            <span class="note-meta__key">발행</span>
+            <span class="note-meta__value">{note.published.label}</span>
+          </span>
+        )
+      }
+      {
+        note.readAt && (
+          <span class="note-meta__pair">
+            <span class="note-meta__key">읽음</span>
+            <span class="note-meta__value">{note.readAt.label}</span>
+          </span>
+        )
+      }
+    </div>
+
+    {
+      note.tags.length > 0 && (
+        <div class="note-tags">
+          {note.tags.map((tag) => (
+            <a class="tag" href={href(`${note.category}/?tag=${encodeURIComponent(tag)}`)}>
+              {tag}
+            </a>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="note-actions">
+      {
+        note.url && (
+          <a class="button button--primary" href={note.url} target="_blank" rel="noopener noreferrer">
+            원문 열기
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M7 17 17 7M9 7h8v8"></path>
+            </svg>
+          </a>
+        )
+      }
+      <a class="button" href={href(`${note.category}/`)}>목록으로</a>
+      {!note.isRead && <span class="note-actions__note">아직 읽지 않은 글입니다.</span>}
+    </div>
+  </header>
+
+  <article class="prose">
+    <Content />
+  </article>
+
+  <footer class="note-footer">
+    <span>mandooshelf · {note.categoryTitle}</span>
+    <a class="backlink" style="margin:0" href={href(`${note.category}/`)}>← {note.categoryTitle} 목록으로</a>
+  </footer>
+</BaseLayout>

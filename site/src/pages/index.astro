@@ -1,0 +1,108 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NoteList from '../components/NoteList.astro';
+import { getAllNotes, getCategories, href, sortByRead, totalSummary } from '../lib/notes';
+
+const notes = await getAllNotes();
+const categories = await getCategories();
+const summary = totalSummary(notes);
+const unread = notes.filter((note) => !note.isRead);
+const recentRead = sortByRead(notes, 4);
+const latest = notes[0];
+---
+
+<BaseLayout description="테크 블로그와 컨퍼런스에서 읽은 글을 정리해 쌓는 아카이브. 안 읽은 글, 카테고리별 정리본, 최근 읽은 글을 한눈에.">
+  <section class="hero">
+    <p class="eyebrow">tech archive · since 2026</p>
+    <h1 class="hero__title">읽은 글과 정리를<br />한곳에 쌓는 아카이브</h1>
+    <p class="hero__desc">
+      테크 블로그·컨퍼런스 발표를 읽고 정리한 노트를 모읍니다. 안 읽은 글은 표시해 두고, 읽고 나면 정리본과
+      함께 기록으로 남깁니다.
+    </p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat__value">{summary.total}</div>
+        <div class="stat__label">전체 글</div>
+      </div>
+      <div class="stat stat--unread">
+        <div class="stat__value">{summary.unread}</div>
+        <div class="stat__label">안 읽음</div>
+      </div>
+      <div class="stat">
+        <div class="stat__value">{summary.read}</div>
+        <div class="stat__label">읽음</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="unread-title">
+    <div class="section__head">
+      <h2 class="section__title" id="unread-title">
+        안 읽은 글 <span class="section__count">{unread.length}</span>
+      </h2>
+      {
+        unread.length > 0 && (
+          <a class="section__more" href={href(`${unread[0].category}/?status=unread`)}>
+            목록에서 보기 →
+          </a>
+        )
+      }
+    </div>
+    {
+      unread.length > 0 ? (
+        <NoteList notes={unread} showCategory emptyTitle="안 읽은 글이 없어요" emptyText="모두 읽었습니다." />
+      ) : (
+        <p class="empty">
+          <strong>안 읽은 글이 없어요</strong>
+          지금은 모든 글을 읽고 정리했습니다.
+        </p>
+      )
+    }
+  </section>
+
+  <section class="section" aria-labelledby="category-title">
+    <div class="section__head">
+      <h2 class="section__title" id="category-title">카테고리</h2>
+      {latest && <span class="section__more">최근 정리 {latest.published?.label ?? ''}</span>}
+    </div>
+    <div class="category-grid">
+      {
+        categories.map((category) => {
+          const percent = category.total === 0 ? 0 : Math.round((category.read / category.total) * 100);
+          return (
+            <a class="category-card" href={href(`${category.id}/`)}>
+              <div class="category-card__top">
+                <h3 class="category-card__title">{category.title}</h3>
+                <span class="category-card__count">
+                  읽음 {category.read} / {category.total}
+                </span>
+              </div>
+              <p class="category-card__desc">{category.subtitle}</p>
+              <div class="progress" role="img" aria-label={`${percent}% 읽음`}>
+                <span class="progress__bar" style={`width:${percent}%`} />
+              </div>
+            </a>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="recent-title">
+    <div class="section__head">
+      <h2 class="section__title" id="recent-title">최근 읽은 글</h2>
+      <a class="section__more" href={href('search/')}>전체 글 검색 →</a>
+    </div>
+    {
+      recentRead.length > 0 ? (
+        <NoteList notes={recentRead} showCategory emptyTitle="아직 읽은 글이 없어요" emptyText="글을 읽고 정리하면 여기에 쌓입니다." />
+      ) : (
+        <p class="empty">
+          <strong>아직 읽은 글이 없어요</strong>
+          글을 읽고 정리하면 이곳에 쌓입니다.
+        </p>
+      )
+    }
+  </section>
+</BaseLayout>
