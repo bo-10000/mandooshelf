@@ -298,10 +298,12 @@ p {
 
 /* ---------------------------------- 홈 ---------------------------------- */
 
+/* 홈 첫 화면의 제목은 위쪽 여백을 넉넉히 줘서 시선이 먼저 닿게 한다. */
 .home-head {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  padding-top: var(--space-6);
 }
 
 .home-head__title {
@@ -316,7 +318,7 @@ p {
 }
 
 .home-head + .summary {
-  margin-top: var(--space-4);
+  margin-top: var(--space-5);
 }
 
 .summary {
@@ -348,7 +350,7 @@ p {
 }
 
 .summary + .section {
-  margin-top: var(--space-7);
+  margin-top: var(--space-8);
 }
 
 /* ------------------------------- 노트 카드 ------------------------------- */
@@ -1274,8 +1276,11 @@ html.dark .astro-code span {
   .section {
     margin-top: var(--space-8);
   }
+  .home-head {
+    padding-top: var(--space-4);
+  }
   .summary + .section {
-    margin-top: var(--space-7);
+    margin-top: var(--space-8);
   }
   /* iOS Safari는 폰트가 16px 미만인 입력창에 포커스하면 화면을 확대한다. */
   .filter__search {
