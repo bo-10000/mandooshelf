@@ -71,6 +71,15 @@ frontmatter는 아래 값을 읽습니다. 모두 없어도 빌드됩니다.
 | `published_at` | `2026-11-16`, `2026-11`, `2026` | 문자열/날짜 모두 허용 |
 | `read_at` | `2026-11-22` | 읽은 날 |
 
+## 스타일 규격
+
+여백은 `global.css`의 `:root`에 있는 간격 토큰(`--space-1` 4px … `--space-10` 56px)만 사용합니다.
+
+- 페이지 좌우 패딩: `--pad-inline` — 데스크톱 20px, 520px 이하 16px
+- 블록 사이: 홈 헤더→요약 12px, 요약→첫 섹션 24px, 섹션 사이 40px(모바일 32px)
+- 카드 안쪽 패딩 16px, 카드 사이 `--gap-cards` 10px, 필터 카드 안 행 간격 12px
+- `.filter__search input`만 모바일에서도 16px을 유지합니다(iOS 포커스 확대 방지). 정렬 `.select`는 12.5~13px.
+
 ## 배포
 
 GitHub Pages(https://bo-10000.github.io/mandooshelf/) 기준으로 설정되어 있습니다.
