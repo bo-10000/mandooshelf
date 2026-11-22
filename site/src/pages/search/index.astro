@@ -17,13 +17,11 @@ const tags = tagCounts(notes);
     홈
   </a>
 
-  <header class="page-head">
-    <h1 class="page-head__title">모든 글</h1>
-  </header>
+  <h1 class="sr-only">모든 글</h1>
 
   <FilterBar notes={notes} categories={categories} tags={tags} />
 
-  <div style="margin-top:18px">
+  <div class="list-block">
     <NoteList notes={notes} showCategory emptyTitle="일치하는 글 없음" />
   </div>
 </BaseLayout>

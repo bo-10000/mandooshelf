@@ -24,6 +24,19 @@
   --radius: 14px;
   --radius-sm: 9px;
   --container: 768px;
+  /* 간격 스케일 — 페이지 여백은 이 값들로만 맞춘다. */
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
+  --space-4: 12px;
+  --space-5: 16px;
+  --space-6: 20px;
+  --space-7: 24px;
+  --space-8: 32px;
+  --space-9: 40px;
+  --space-10: 56px;
+  --pad-inline: 20px;
+  --gap-cards: 10px;
   --font-sans:
     'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
     'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
@@ -113,7 +126,7 @@ svg {
   width: 100%;
   max-width: var(--container);
   margin: 0 auto;
-  padding-inline: 20px;
+  padding-inline: var(--pad-inline);
 }
 
 .site-header {
@@ -196,13 +209,13 @@ html:not(.dark) .icon-button .icon-sun {
 }
 
 .site-main {
-  padding-block: 28px 64px;
+  padding-block: var(--space-7) var(--space-10);
   min-height: 60vh;
 }
 
 .site-footer {
   border-top: 1px solid var(--line);
-  padding-block: 24px 40px;
+  padding-block: var(--space-7) var(--space-9);
   color: var(--muted);
   font-size: 12.5px;
 }
@@ -245,15 +258,15 @@ p {
 }
 
 .section {
-  margin-top: 40px;
+  margin-top: var(--space-9);
 }
 
 .section__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .section__title {
@@ -285,6 +298,27 @@ p {
 
 /* ---------------------------------- 홈 ---------------------------------- */
 
+.home-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.home-head__title {
+  font-size: 1.32rem;
+  letter-spacing: -0.03em;
+}
+
+.home-head__desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.home-head + .summary {
+  margin-top: var(--space-4);
+}
+
 .summary {
   display: flex;
   flex-wrap: wrap;
@@ -314,7 +348,7 @@ p {
 }
 
 .summary + .section {
-  margin-top: 28px;
+  margin-top: var(--space-7);
 }
 
 /* ------------------------------- 노트 카드 ------------------------------- */
@@ -322,7 +356,7 @@ p {
 .note-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--gap-cards);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -334,7 +368,7 @@ p {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 15px 16px 14px;
+  padding: var(--space-5);
   box-shadow: var(--shadow);
   transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
 }
@@ -348,9 +382,9 @@ p {
 .note-card__top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-3);
   flex-wrap: wrap;
-  margin-bottom: 7px;
+  margin-bottom: var(--space-2);
 }
 
 .note-card__title {
@@ -370,7 +404,7 @@ p {
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 8px;
-  margin-top: 8px;
+  margin-top: var(--space-3);
   font-size: 12.5px;
   color: var(--muted);
 }
@@ -383,7 +417,7 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin-top: 10px;
+  margin-top: var(--space-3);
 }
 
 .tag {
@@ -453,7 +487,7 @@ p {
 
 .category-grid {
   display: grid;
-  gap: 10px;
+  gap: var(--gap-cards);
 }
 
 @media (min-width: 620px) {
@@ -467,7 +501,7 @@ p {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: var(--space-5);
   box-shadow: var(--shadow);
   transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
 }
@@ -498,7 +532,7 @@ p {
 }
 
 .progress {
-  margin-top: 14px;
+  margin-top: var(--space-4);
   height: 5px;
   border-radius: 999px;
   background: var(--surface-3);
@@ -518,7 +552,7 @@ p {
 .page-head {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .backlink {
@@ -527,7 +561,7 @@ p {
   gap: 5px;
   font-size: 12.5px;
   color: var(--muted);
-  margin-bottom: 14px;
+  margin-bottom: var(--space-5);
 }
 
 .backlink:hover {
@@ -548,7 +582,7 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 10px;
-  margin-top: 10px;
+  margin-top: var(--space-4);
   font-size: 12.5px;
   color: var(--muted);
 }
@@ -556,21 +590,22 @@ p {
 /* --------------------------------- 필터 --------------------------------- */
 
 .filter {
-  margin-top: 22px;
-  padding: 12px;
+  margin-top: 0;
+  padding: var(--space-5);
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
+  gap: var(--space-4);
 }
 
 .filter__row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-3);
+  row-gap: var(--space-4);
   flex-wrap: wrap;
   min-width: 0;
 }
@@ -641,8 +676,8 @@ p {
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 0 10px;
+  gap: 6px;
+  padding: 0 6px 0 10px;
   height: 34px;
   background: var(--surface-2);
   border: 1px solid var(--line);
@@ -700,6 +735,48 @@ p {
   padding: 0;
 }
 
+/* 브라우저 기본 검색 지우기 단추는 숨기고 우리 × 하나만 쓴다. */
+.filter__search input[type='search']::-webkit-search-cancel-button,
+.filter__search input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.filter__search input[type='search']::-ms-clear {
+  display: none;
+}
+
+.filter__clear {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.14s ease, background 0.14s ease;
+}
+
+.filter__clear:hover {
+  color: var(--fg);
+  background: var(--surface-3);
+}
+
+.filter__clear[hidden] {
+  display: none;
+}
+
+.filter__search .filter__clear svg {
+  width: 11px;
+  height: 11px;
+}
+
 .filter__search input:focus {
   outline: none;
 }
@@ -713,15 +790,16 @@ p {
   font: inherit;
   font-size: 12.5px;
   font-weight: 500;
+  line-height: 1.35;
   color: var(--fg-1);
   background: var(--surface-2);
   border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 7px 26px 7px 10px;
+  border-radius: 8px;
+  padding: 4px 23px 4px 9px;
   cursor: pointer;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2374747f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2374747f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 9px center;
+  background-position: right 8px center;
 }
 
 .tag-filter {
@@ -797,11 +875,11 @@ p {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 6px 10px;
+  gap: var(--space-2) var(--space-4);
   font-size: 12px;
   color: var(--muted);
   border-top: 1px solid var(--line);
-  padding-top: 9px;
+  padding-top: var(--space-4);
 }
 
 .filter__foot-actions {
@@ -810,29 +888,12 @@ p {
   gap: 10px;
 }
 
-.filter__reset {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.filter__reset:hover {
-  color: var(--fg);
-}
-
 .is-hidden {
   display: none !important;
 }
 
 .empty {
-  margin-top: 18px;
+  margin-top: var(--space-5);
   padding: 24px 20px;
   text-align: center;
   color: var(--muted);
@@ -852,7 +913,7 @@ p {
 /* ------------------------------ 노트 상세 ------------------------------ */
 
 .note-header {
-  padding-bottom: 20px;
+  padding-bottom: var(--space-6);
   border-bottom: 1px solid var(--line);
 }
 
@@ -925,7 +986,7 @@ p {
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 12px;
-  margin-top: 14px;
+  margin-top: var(--space-4);
   font-size: 12.5px;
   color: var(--muted);
 }
@@ -953,14 +1014,14 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin-top: 14px;
+  margin-top: var(--space-4);
 }
 
 .note-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 18px;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
 }
 
 .button {
@@ -1002,7 +1063,7 @@ p {
 /* -------------------------------- 본문(prose) ------------------------------- */
 
 .prose {
-  margin-top: 26px;
+  margin-top: var(--space-7);
   font-size: 15.5px;
   line-height: 1.85;
   color: var(--fg-1);
@@ -1010,6 +1071,13 @@ p {
 
 .prose > :first-child {
   margin-top: 0;
+}
+
+/* 본문 끝에 내용 없이 남은 제목(템플릿 자리)은 화면에서 감춘다. */
+.prose > h2:last-child,
+.prose > h3:last-child,
+.prose > h4:last-child {
+  display: none;
 }
 
 .prose h2 {
@@ -1170,70 +1238,10 @@ html.dark .astro-code span {
   text-decoration: var(--shiki-dark-text-decoration) !important;
 }
 
-.note-footer {
-  margin-top: 44px;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 12.5px;
-  color: var(--muted);
-}
-
 /* --------------------------------- 검색 --------------------------------- */
 
-.search-hero {
-  display: grid;
-  gap: 14px;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  height: 46px;
-  padding: 0 14px;
-  background: var(--surface);
-  border: 1px solid var(--line-strong);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
-  color: var(--muted);
-}
-
-.search-box:focus-within {
-  border-color: var(--accent);
-}
-
-.search-box svg {
-  width: 16px;
-  height: 16px;
-  flex: none;
-}
-
-.search-box input {
-  flex: 1;
-  min-width: 0;
-  border: 0;
-  background: transparent;
-  color: var(--fg);
-  font: inherit;
-  font-size: 15px;
-}
-
-.search-box input:focus {
-  outline: none;
-}
-
-.search-box input::placeholder {
-  color: var(--muted);
-}
-
-.search-hint {
-  font-size: 12px;
-  color: var(--muted);
+.list-block {
+  margin-top: var(--space-7);
 }
 
 /* --------------------------------- 유틸 --------------------------------- */
@@ -1257,19 +1265,19 @@ html.dark .astro-code span {
 }
 
 @media (max-width: 520px) {
-  .container {
-    padding-inline: 16px;
+  :root {
+    --pad-inline: 16px;
   }
   .site-main {
-    padding-block: 22px 52px;
+    padding-block: var(--space-6) var(--space-9);
   }
   .section {
-    margin-top: 32px;
+    margin-top: var(--space-8);
   }
   .summary + .section {
-    margin-top: 24px;
+    margin-top: var(--space-7);
   }
-  /* iOS Safari는 폰트가 16px 미만인 입력·셀렉트에 포커스하면 화면을 확대한다. */
+  /* iOS Safari는 폰트가 16px 미만인 입력창에 포커스하면 화면을 확대한다. */
   .filter__search {
     height: 38px;
   }
@@ -1280,7 +1288,8 @@ html.dark .astro-code span {
     height: 38px;
   }
   .select {
-    font-size: 16px;
+    font-size: 13px;
+    padding: 5px 23px 5px 9px;
   }
   .prose {
     font-size: 15px;

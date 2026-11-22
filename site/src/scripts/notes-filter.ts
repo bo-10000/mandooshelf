@@ -32,7 +32,7 @@ function init(container: HTMLElement) {
   const searchInput = root.querySelector<HTMLInputElement>('[data-search]');
   const sortSelect = root.querySelector<HTMLSelectElement>('[data-sort]');
   const countEl = root.querySelector<HTMLElement>('[data-visible-count]');
-  const resetButton = root.querySelector<HTMLButtonElement>('[data-reset]');
+  const clearSearchButton = root.querySelector<HTMLButtonElement>('[data-search-clear]');
   const clearTagsButton = root.querySelector<HTMLButtonElement>('[data-clear-tags]');
   const tagExtras = Array.from(root.querySelectorAll<HTMLElement>('[data-tag-extra]'));
   const tagToggle = root.querySelector<HTMLButtonElement>('[data-tag-toggle]');
@@ -110,6 +110,12 @@ function init(container: HTMLElement) {
     for (const item of sorted) list!.append(item);
   }
 
+  /** 입력값이 있을 때만 검색창 오른쪽 끝의 × 버튼을 보여 준다. */
+  function syncClearButton() {
+    if (!clearSearchButton || !searchInput) return;
+    clearSearchButton.hidden = searchInput.value.length === 0;
+  }
+
   function syncControls() {
     for (const button of categoryButtons) {
       button.setAttribute('aria-pressed', String(button.dataset.category === state.category));
@@ -162,6 +168,7 @@ function init(container: HTMLElement) {
     if (countEl) countEl.textContent = String(visible);
     if (empty) empty.hidden = visible !== 0;
     syncControls();
+    syncClearButton();
     syncUrl();
   }
 
@@ -194,6 +201,16 @@ function init(container: HTMLElement) {
     searchInput.addEventListener('input', () => {
       state.q = searchInput.value;
       apply();
+    });
+  }
+
+  // 검색창 안 × : 값을 비우고 바로 필터·주소를 다시 맞춘다.
+  if (clearSearchButton && searchInput) {
+    clearSearchButton.addEventListener('click', () => {
+      searchInput.value = '';
+      state.q = '';
+      apply();
+      searchInput.focus();
     });
   }
 
@@ -240,19 +257,6 @@ function init(container: HTMLElement) {
   if (clearTagsButton) {
     clearTagsButton.addEventListener('click', () => {
       state.tags = [];
-      apply();
-    });
-  }
-
-  if (resetButton) {
-    resetButton.addEventListener('click', () => {
-      state.category = 'all';
-      state.status = 'all';
-      state.tags = [];
-      state.q = '';
-      state.sort = 'published-desc';
-      if (searchInput) searchInput.value = '';
-      applySort();
       apply();
     });
   }
