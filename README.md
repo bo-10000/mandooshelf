@@ -5,12 +5,11 @@
 
 ## 📂 카테고리
 
-- [**recommendation**](recommendation/) · 추천 시스템·개인화·랭킹·파운데이션 모델 (읽음 2 / 전체 6)
+- [**recommendation**](recommendation/) · 추천 시스템·개인화·랭킹·파운데이션 모델 (읽음 3 / 전체 6)
 - [**ai-agent**](ai-agent/) · AI 에이전트·LLM 활용·팀 지식 (읽음 0 / 전체 1)
 
-## 📌 안 읽은 글 (5)
+## 📌 안 읽은 글 (4)
 
-- [LLM을 활용한 유저 프로파일링과 개인화 추천 (2025)](recommendation/%5BUNREAD%5D%20kakao-llm-user-profiling-personalized-recommendation%20(2025).md) · kakao tech · if(kakao)25
 - [Foundation Model for Personalized Recommendation (2025)](recommendation/%5BUNREAD%5D%20netflix-foundation-model-personalized-recommendation%20(2025).md) · Netflix TechBlog
 - [PinFM: Foundation Model for User Activity Sequences (2025)](recommendation/%5BUNREAD%5D%20pinterest-pinfm-user-activity-sequence-foundation-model%20(2025).md) · Pinterest · arXiv 2507.12704
 - [Generalized User Representations for Large-Scale Recommendations (2025)](recommendation/%5BUNREAD%5D%20spotify-generalized-user-representations%20(2025).md) · Spotify Research · RecSys 2025
