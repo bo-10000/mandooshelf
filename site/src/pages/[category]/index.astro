@@ -1,8 +1,10 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import FilterBar from '../../components/FilterBar.astro';
-import NoteList from '../../components/NoteList.astro';
-import { getCategories, href, tagCounts, type CategorySummary } from '../../lib/notes';
+/**
+ * 카테고리별 목록은 `/search/?category=...` 로 통합됐다.
+ * 예전 주소(/recommendation/, /ai-agent/)와 검색엔진·북마크 링크가 깨지지 않도록
+ * 필터를 그대로 넘겨 주는 안내 페이지를 남긴다. (JS 없이도 meta refresh 로 이동)
+ */
+import { getCategories, searchHref, type CategorySummary } from '../../lib/notes';
 
 export async function getStaticPaths() {
   const categories = await getCategories();
@@ -17,38 +19,51 @@ interface Props {
 }
 
 const { category } = Astro.props;
-const tags = tagCounts(category.notes);
-const latest = category.notes[0];
+const target = searchHref({ category: category.id });
+const targetUrl = new URL(target, Astro.site ?? 'https://bo-10000.github.io');
 ---
 
-<BaseLayout
-  title={category.title}
-  description={`${category.title} — ${category.subtitle}. 읽음 ${category.read} / 전체 ${category.total}.`}
->
-  <a class="backlink" href={href('/')}>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="m15 18-6-6 6-6"></path>
-    </svg>
-    홈
-  </a>
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{category.title} · mandooshelf</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={targetUrl} />
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <script is:inline define:vars={{ categoryId: category.id, fallback: target }}>
+      // 예전 주소에 붙어 있던 필터(?status=, ?tag=, ?q=, ?sort=)를 통합 검색 주소로 옮긴다.
+      (function () {
+        try {
+          var incoming = new URLSearchParams(window.location.search);
+          var next = new URLSearchParams();
+          next.set('category', categoryId);
 
-  <header class="page-head">
-    <p class="eyebrow">{category.id}</p>
-    <h1 class="page-head__title">{category.title}</h1>
-    <p class="page-head__desc">{category.subtitle}</p>
-    <div class="page-head__meta">
-      <span>읽음 {category.read} / 전체 {category.total}</span>
-      {latest?.published && <span>최근 발행 {latest.published.label}</span>}
-    </div>
-  </header>
+          var status = incoming.get('status');
+          if (status === 'read' || status === 'unread') next.set('status', status);
 
-  <FilterBar notes={category.notes} tags={tags} />
+          var tags = incoming.get('tags') || incoming.get('tag');
+          if (tags) next.set('tags', tags);
 
-  <div style="margin-top:18px">
-    <NoteList
-      notes={category.notes}
-      emptyTitle="모아 둔 글이 없어요"
-      emptyText="이 카테고리에 첫 글을 추가하면 여기에 나타납니다."
-    />
-  </div>
-</BaseLayout>
+          var q = incoming.get('q');
+          if (q) next.set('q', q);
+
+          var sort = incoming.get('sort');
+          if (sort) next.set('sort', sort);
+
+          var path = fallback.split('?')[0];
+          var search = next.toString();
+          window.location.replace(path + (search ? '?' + search : ''));
+        } catch (error) {
+          window.location.replace(fallback);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <p>
+      <a href={target}>{category.title} 글 보기 →</a>
+    </p>
+  </body>
+</html>

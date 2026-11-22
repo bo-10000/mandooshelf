@@ -23,6 +23,7 @@ const {
         class="note-item"
         data-note
         data-status={note.isRead ? 'read' : 'unread'}
+        data-category={note.category}
         data-tags={note.tags.join('|').toLowerCase()}
         data-year={note.year ?? ''}
         data-published={note.published?.sort ?? ''}

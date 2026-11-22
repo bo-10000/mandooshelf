@@ -15,10 +15,10 @@ site/
 │   ├── components/        # NoteList, FilterBar
 │   ├── scripts/notes-filter.ts
 │   ├── pages/
-│   │   ├── index.astro              # 홈: 요약·안 읽은 글·카테고리·최근 읽은 글
-│   │   ├── [category]/index.astro   # 카테고리: 읽음/태그/검색/정렬 필터
+│   │   ├── index.astro              # 홈: 카테고리 → 안 읽은 글 → 최근 읽은 글
+│   │   ├── search/index.astro       # 통합 목록: 카테고리·상태·태그(다중)·검색·정렬
+│   │   ├── [category]/index.astro   # 예전 카테고리 주소 → /search/?category=… 리다이렉트
 │   │   ├── [category]/[slug].astro  # 글 상세
-│   │   ├── search/index.astro       # 전체 글 검색
 │   │   └── 404.astro
 │   └── styles/global.css
 └── public/favicon.svg
@@ -35,6 +35,23 @@ npm run dev      # http://localhost:4321/mandooshelf/
 npm run build    # 결과물: site/dist
 npm run preview
 ```
+
+## 필터 주소 규칙
+
+목록은 `/search/` 한 페이지에서 카테고리·읽음 상태·태그·검색어·정렬을 함께 건다.
+선택한 상태는 주소 쿼리에 그대로 남아 공유·새로고침해도 유지된다.
+
+| 파라미터 | 값 | 기본값(생략) |
+| --- | --- | --- |
+| `category` | 카테고리 폴더명 (`recommendation`, `ai-agent`, …) | 전체 |
+| `status` | `unread` \| `read` | 전체 |
+| `tags` | 태그를 쉼표로 연결 (`cold-start,embedding`) — 모두 포함한 글만 | 전체 |
+| `q` | 제목·출처·태그·카테고리 검색어 | 없음 |
+| `sort` | `published-desc` \| `published-asc` \| `year-desc` \| `title` | 최신순 |
+
+예) `/search/?category=recommendation&status=unread&tags=cold-start`
+
+예전 카테고리 주소(`/recommendation/`, `/ai-agent/`)는 필터를 옮겨 `/search/?category=…`로 보내는 안내 페이지로 남겨 둔다.
 
 ## 노트 추가·수정
 

@@ -1,17 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import NoteList from '../components/NoteList.astro';
-import { getAllNotes, getCategories, href, sortByRead, totalSummary } from '../lib/notes';
+import { getAllNotes, getCategories, searchHref, sortByRead, totalSummary } from '../lib/notes';
 
 const notes = await getAllNotes();
 const categories = await getCategories();
 const summary = totalSummary(notes);
 const unread = notes.filter((note) => !note.isRead);
+const unreadPreview = unread.slice(0, 6);
 const recentRead = sortByRead(notes, 4);
 const latest = notes[0];
 ---
 
-<BaseLayout description="테크 블로그와 컨퍼런스에서 읽은 글을 정리해 쌓는 아카이브. 안 읽은 글, 카테고리별 정리본, 최근 읽은 글을 한눈에.">
+<BaseLayout description="테크 블로그와 컨퍼런스에서 읽은 글을 정리해 쌓는 아카이브. 카테고리별 정리본, 안 읽은 글, 최근 읽은 글을 한눈에.">
   <section class="hero">
     <p class="eyebrow">tech archive · since 2026</p>
     <h1 class="hero__title">읽은 글과 정리를<br />한곳에 쌓는 아카이브</h1>
@@ -36,42 +37,17 @@ const latest = notes[0];
     </div>
   </section>
 
-  <section class="section" aria-labelledby="unread-title">
-    <div class="section__head">
-      <h2 class="section__title" id="unread-title">
-        안 읽은 글 <span class="section__count">{unread.length}</span>
-      </h2>
-      {
-        unread.length > 0 && (
-          <a class="section__more" href={href(`${unread[0].category}/?status=unread`)}>
-            목록에서 보기 →
-          </a>
-        )
-      }
-    </div>
-    {
-      unread.length > 0 ? (
-        <NoteList notes={unread} showCategory emptyTitle="안 읽은 글이 없어요" emptyText="모두 읽었습니다." />
-      ) : (
-        <p class="empty">
-          <strong>안 읽은 글이 없어요</strong>
-          지금은 모든 글을 읽고 정리했습니다.
-        </p>
-      )
-    }
-  </section>
-
   <section class="section" aria-labelledby="category-title">
     <div class="section__head">
       <h2 class="section__title" id="category-title">카테고리</h2>
-      {latest && <span class="section__more">최근 정리 {latest.published?.label ?? ''}</span>}
+      <a class="section__more" href={searchHref()}>전체 글 보기 →</a>
     </div>
     <div class="category-grid">
       {
         categories.map((category) => {
           const percent = category.total === 0 ? 0 : Math.round((category.read / category.total) * 100);
           return (
-            <a class="category-card" href={href(`${category.id}/`)}>
+            <a class="category-card" href={searchHref({ category: category.id })}>
               <div class="category-card__top">
                 <h3 class="category-card__title">{category.title}</h3>
                 <span class="category-card__count">
@@ -87,16 +63,50 @@ const latest = notes[0];
         })
       }
     </div>
+    {latest && <p class="section__note">최근 정리 {latest.published?.label ?? ''}</p>}
+  </section>
+
+  <section class="section" aria-labelledby="unread-title">
+    <div class="section__head">
+      <h2 class="section__title" id="unread-title">
+        안 읽은 글 <span class="section__count">{unread.length}</span>
+      </h2>
+      <a class="section__more" href={searchHref({ status: 'unread' })}>
+        더보기{unread.length > unreadPreview.length ? ` +${unread.length - unreadPreview.length}` : ''} →
+      </a>
+    </div>
+    {
+      unread.length > 0 ? (
+        <NoteList
+          notes={unreadPreview}
+          showCategory
+          emptyTitle="안 읽은 글이 없어요"
+          emptyText="모두 읽었습니다."
+        />
+      ) : (
+        <p class="empty">
+          <strong>안 읽은 글이 없어요</strong>
+          지금은 모든 글을 읽고 정리했습니다.
+        </p>
+      )
+    }
   </section>
 
   <section class="section" aria-labelledby="recent-title">
     <div class="section__head">
-      <h2 class="section__title" id="recent-title">최근 읽은 글</h2>
-      <a class="section__more" href={href('search/')}>전체 글 검색 →</a>
+      <h2 class="section__title" id="recent-title">
+        최근 읽은 글 <span class="section__count">{summary.read}</span>
+      </h2>
+      <a class="section__more" href={searchHref({ status: 'read' })}>더보기 →</a>
     </div>
     {
       recentRead.length > 0 ? (
-        <NoteList notes={recentRead} showCategory emptyTitle="아직 읽은 글이 없어요" emptyText="글을 읽고 정리하면 여기에 쌓입니다." />
+        <NoteList
+          notes={recentRead}
+          showCategory
+          emptyTitle="아직 읽은 글이 없어요"
+          emptyText="글을 읽고 정리하면 여기에 쌓입니다."
+        />
       ) : (
         <p class="empty">
           <strong>아직 읽은 글이 없어요</strong>

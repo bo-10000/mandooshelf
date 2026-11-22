@@ -50,6 +50,29 @@ export function href(path = ''): string {
   return clean ? `${BASE}/${clean}` : `${BASE}/`;
 }
 
+export interface SearchQuery {
+  category?: string;
+  status?: 'read' | 'unread';
+  tags?: string[];
+  q?: string;
+  sort?: string;
+}
+
+/**
+ * 통합 검색 페이지(`/search/`) 링크.
+ * 필터 상태는 쿼리로만 표현하고, 기본값(all / 최신순 / 빈 검색어)은 주소에서 뺀다.
+ */
+export function searchHref(query: SearchQuery = {}): string {
+  const params = new URLSearchParams();
+  if (query.category && query.category !== 'all') params.set('category', query.category);
+  if (query.status === 'read' || query.status === 'unread') params.set('status', query.status);
+  if (query.tags && query.tags.length > 0) params.set('tags', query.tags.join(','));
+  if (query.q && query.q.trim()) params.set('q', query.q.trim());
+  if (query.sort && query.sort !== 'published-desc') params.set('sort', query.sort);
+  const search = params.toString();
+  return `${href('search/')}${search ? `?${search}` : ''}`;
+}
+
 /* --------------------------------- 슬러그 --------------------------------- */
 
 /**

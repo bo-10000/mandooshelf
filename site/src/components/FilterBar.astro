@@ -1,16 +1,36 @@
 ---
-import { totalSummary, type Note } from '../lib/notes';
+import { totalSummary, type CategorySummary, type Note } from '../lib/notes';
 
 interface Props {
   notes: Note[];
+  categories: CategorySummary[];
   tags: { tag: string; count: number }[];
 }
 
-const { notes, tags } = Astro.props;
+const { notes, categories, tags } = Astro.props;
 const counts = totalSummary(notes);
+
+/** 처음에 펼쳐 보여 줄 태그 수 */
+const VISIBLE_TAGS = 12;
 ---
 
 <div class="filter" data-filter-root>
+  <div class="filter__row">
+    <div class="segmented segmented--scroll" role="group" aria-label="카테고리 필터">
+      <button class="segmented__button" type="button" data-category="all" aria-pressed="true">
+        전체<span class="segmented__count">{counts.total}</span>
+      </button>
+      {
+        categories.map((category) => (
+          <button class="segmented__button" type="button" data-category={category.id} aria-pressed="false">
+            {category.title}
+            <span class="segmented__count">{category.total}</span>
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
   <div class="filter__row">
     <div class="segmented" role="group" aria-label="읽음 상태 필터">
       <button class="segmented__button" type="button" data-status="all" aria-pressed="true">
@@ -30,7 +50,7 @@ const counts = totalSummary(notes);
         <path d="m20 20-3.5-3.5"></path>
       </svg>
       <span class="sr-only">제목·출처·태그 검색</span>
-      <input type="search" data-search placeholder="제목·태그 검색" autocomplete="off" />
+      <input type="search" data-search placeholder="제목·출처·태그 검색" autocomplete="off" />
     </label>
 
     <select class="select" data-sort aria-label="정렬">
@@ -43,40 +63,44 @@ const counts = totalSummary(notes);
 
   {
     tags.length > 0 && (
-      <div class="filter__row">
+      <div class="filter__row filter__row--tags">
         <span class="eyebrow">태그</span>
-        <ul class="tag-filter">
+        <span class="filter__help">여러 개 고르면 모두 포함한 글만 보여요</span>
+        <ul class="tag-filter" role="group" aria-label="태그 필터">
           {tags.map(({ tag, count }, index) => (
-            <li hidden={index >= 8}>
+            <li hidden={index >= VISIBLE_TAGS}>
               <button
                 class="tag-chip"
                 type="button"
                 data-tag={tag}
                 aria-pressed="false"
                 title={`${tag} · ${count}개`}
-                data-tag-extra={index >= 8 ? '' : undefined}
-                hidden={index >= 8}
+                data-tag-extra={index >= VISIBLE_TAGS ? '' : undefined}
+                hidden={index >= VISIBLE_TAGS}
               >
                 {tag}
+                <span class="tag-chip__x" aria-hidden="true">×</span>
               </button>
             </li>
           ))}
-          {
-            tags.length > 8 && (
-              <li>
-                <button class="tag-chip tag-chip--more" type="button" data-tag-toggle aria-expanded="false">
-                  태그 더 보기 +{tags.length - 8}
-                </button>
-              </li>
-            )
-          }
+          {tags.length > VISIBLE_TAGS && (
+            <li>
+              <button class="tag-chip tag-chip--more" type="button" data-tag-toggle aria-expanded="false">
+                태그 더 보기 +{tags.length - VISIBLE_TAGS}
+              </button>
+            </li>
+          )}
+          <li hidden>
+            <button class="tag-chip tag-chip--clear" type="button" data-clear-tags hidden>태그 선택 해제</button>
+          </li>
         </ul>
       </div>
     )
   }
 
   <div class="filter__foot">
-    <span><span data-visible-count>{counts.total}</span> / {counts.total}개 글</span>
+    <span aria-live="polite"><span data-visible-count>{counts.total}</span> / {counts.total}개 글</span>
+    <span class="filter__state" data-filter-state hidden></span>
     <button class="filter__reset" type="button" data-reset>필터 초기화</button>
   </div>
 </div>

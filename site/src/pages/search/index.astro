@@ -1,75 +1,44 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import FilterBar from '../../components/FilterBar.astro';
 import NoteList from '../../components/NoteList.astro';
-import { getAllNotes, getCategories, totalSummary } from '../../lib/notes';
+import { getAllNotes, getCategories, href, tagCounts, totalSummary } from '../../lib/notes';
 
 const notes = await getAllNotes();
 const categories = await getCategories();
+const tags = tagCounts(notes);
 const summary = totalSummary(notes);
 const sourceCount = new Set(notes.map((note) => note.source).filter(Boolean)).size;
 ---
 
-<BaseLayout title="검색" description="mandooshelf에 모은 모든 글을 제목·출처·태그로 검색합니다.">
+<BaseLayout
+  title="모든 글"
+  description={`mandooshelf에 모은 글 ${summary.total}개를 카테고리·읽음 상태·태그·검색어로 찾습니다.`}
+>
+  <a class="backlink" href={href('/')}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m15 18-6-6 6-6"></path>
+    </svg>
+    홈
+  </a>
+
   <header class="page-head">
-    <p class="eyebrow">search</p>
-    <h1 class="page-head__title">모든 글 검색</h1>
+    <p class="eyebrow">archive</p>
+    <h1 class="page-head__title">모든 글</h1>
     <p class="page-head__desc">
-      글 {summary.total}개 · 카테고리 {categories.length}개 · 출처 {sourceCount}곳
+      카테고리·읽음 상태·태그·검색어를 함께 걸어 찾습니다. 글 {summary.total}개 · 카테고리 {categories.length}개 ·
+      출처 {sourceCount}곳
     </p>
   </header>
 
-  <div class="search-hero" style="margin-top:20px" data-search-page>
-    <label class="search-box">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="m20 20-3.5-3.5"></path>
-      </svg>
-      <span class="sr-only">글 검색</span>
-      <input type="search" data-search-input placeholder="제목, 출처, 태그, 카테고리로 찾기" autocomplete="off" />
-    </label>
-    <p class="search-hint"><span data-search-count>{notes.length}</span>개 글 · 제목·출처·태그·카테고리에서 찾습니다.</p>
-  </div>
+  <FilterBar notes={notes} categories={categories} tags={tags} />
 
   <div style="margin-top:18px">
     <NoteList
       notes={notes}
       showCategory
-      emptyTitle="찾는 글이 없어요"
-      emptyText="다른 검색어로 다시 찾아보세요."
+      emptyTitle="조건에 맞는 글이 없어요"
+      emptyText="필터를 하나씩 풀거나 다른 검색어로 다시 찾아보세요."
     />
   </div>
-
-  <script>
-    const box = document.querySelector<HTMLElement>('[data-search-page]');
-    const list = document.querySelector<HTMLElement>('[data-note-list]');
-    const input = box?.querySelector<HTMLInputElement>('[data-search-input]');
-    const count = box?.querySelector<HTMLElement>('[data-search-count]');
-    const empty = document.querySelector<HTMLElement>('[data-note-empty]');
-    const items = Array.from(list?.querySelectorAll<HTMLElement>('[data-note]') ?? []);
-
-    function run(query: string, updateUrl = true) {
-      const q = query.trim().toLowerCase();
-      let visible = 0;
-      for (const item of items) {
-        const show = !q || (item.dataset.search ?? '').includes(q);
-        item.classList.toggle('is-hidden', !show);
-        if (show) visible += 1;
-      }
-      if (count) count.textContent = String(visible);
-      if (empty) empty.hidden = visible !== 0;
-      if (updateUrl) {
-        const url = q
-          ? `${window.location.pathname}?q=${encodeURIComponent(query.trim())}`
-          : window.location.pathname;
-        window.history.replaceState(null, '', url);
-      }
-    }
-
-    if (input) {
-      const initial = new URLSearchParams(window.location.search).get('q') ?? '';
-      input.value = initial;
-      run(initial, false);
-      input.addEventListener('input', () => run(input.value));
-    }
-  </script>
 </BaseLayout>
