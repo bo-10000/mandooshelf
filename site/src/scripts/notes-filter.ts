@@ -32,7 +32,6 @@ function init(container: HTMLElement) {
   const searchInput = root.querySelector<HTMLInputElement>('[data-search]');
   const sortSelect = root.querySelector<HTMLSelectElement>('[data-sort]');
   const countEl = root.querySelector<HTMLElement>('[data-visible-count]');
-  const stateEl = root.querySelector<HTMLElement>('[data-filter-state]');
   const resetButton = root.querySelector<HTMLButtonElement>('[data-reset]');
   const clearTagsButton = root.querySelector<HTMLButtonElement>('[data-clear-tags]');
   const tagExtras = Array.from(root.querySelectorAll<HTMLElement>('[data-tag-extra]'));
@@ -162,11 +161,6 @@ function init(container: HTMLElement) {
 
     if (countEl) countEl.textContent = String(visible);
     if (empty) empty.hidden = visible !== 0;
-    if (stateEl) {
-      const active = state.tags.length > 0;
-      stateEl.hidden = !active;
-      stateEl.textContent = active ? `태그 ${state.tags.length}개 모두 포함` : '';
-    }
     syncControls();
     syncUrl();
   }

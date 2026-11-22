@@ -2,19 +2,14 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FilterBar from '../../components/FilterBar.astro';
 import NoteList from '../../components/NoteList.astro';
-import { getAllNotes, getCategories, href, tagCounts, totalSummary } from '../../lib/notes';
+import { getAllNotes, getCategories, href, tagCounts } from '../../lib/notes';
 
 const notes = await getAllNotes();
 const categories = await getCategories();
 const tags = tagCounts(notes);
-const summary = totalSummary(notes);
-const sourceCount = new Set(notes.map((note) => note.source).filter(Boolean)).size;
 ---
 
-<BaseLayout
-  title="모든 글"
-  description={`mandooshelf에 모은 글 ${summary.total}개를 카테고리·읽음 상태·태그·검색어로 찾습니다.`}
->
+<BaseLayout title="모든 글">
   <a class="backlink" href={href('/')}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="m15 18-6-6 6-6"></path>
@@ -23,22 +18,12 @@ const sourceCount = new Set(notes.map((note) => note.source).filter(Boolean)).si
   </a>
 
   <header class="page-head">
-    <p class="eyebrow">archive</p>
     <h1 class="page-head__title">모든 글</h1>
-    <p class="page-head__desc">
-      카테고리·읽음 상태·태그·검색어를 함께 걸어 찾습니다. 글 {summary.total}개 · 카테고리 {categories.length}개 ·
-      출처 {sourceCount}곳
-    </p>
   </header>
 
   <FilterBar notes={notes} categories={categories} tags={tags} />
 
   <div style="margin-top:18px">
-    <NoteList
-      notes={notes}
-      showCategory
-      emptyTitle="조건에 맞는 글이 없어요"
-      emptyText="필터를 하나씩 풀거나 다른 검색어로 다시 찾아보세요."
-    />
+    <NoteList notes={notes} showCategory emptyTitle="일치하는 글 없음" />
   </div>
 </BaseLayout>

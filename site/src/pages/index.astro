@@ -9,33 +9,14 @@ const summary = totalSummary(notes);
 const unread = notes.filter((note) => !note.isRead);
 const unreadPreview = unread.slice(0, 6);
 const recentRead = sortByRead(notes, 4);
-const latest = notes[0];
 ---
 
-<BaseLayout description="테크 블로그와 컨퍼런스에서 읽은 글을 정리해 쌓는 아카이브. 카테고리별 정리본, 안 읽은 글, 최근 읽은 글을 한눈에.">
-  <section class="hero">
-    <p class="eyebrow">tech archive · since 2026</p>
-    <h1 class="hero__title">읽은 글과 정리를<br />한곳에 쌓는 아카이브</h1>
-    <p class="hero__desc">
-      테크 블로그·컨퍼런스 발표를 읽고 정리한 노트를 모읍니다. 안 읽은 글은 표시해 두고, 읽고 나면 정리본과
-      함께 기록으로 남깁니다.
-    </p>
-
-    <div class="stats">
-      <div class="stat">
-        <div class="stat__value">{summary.total}</div>
-        <div class="stat__label">전체 글</div>
-      </div>
-      <div class="stat stat--unread">
-        <div class="stat__value">{summary.unread}</div>
-        <div class="stat__label">안 읽음</div>
-      </div>
-      <div class="stat">
-        <div class="stat__value">{summary.read}</div>
-        <div class="stat__label">읽음</div>
-      </div>
-    </div>
-  </section>
+<BaseLayout>
+  <p class="summary">
+    <span><strong>{summary.total}</strong>전체</span>
+    <span><strong class="summary__unread">{summary.unread}</strong>안 읽음</span>
+    <span><strong>{summary.read}</strong>읽음</span>
+  </p>
 
   <section class="section" aria-labelledby="category-title">
     <div class="section__head">
@@ -54,7 +35,6 @@ const latest = notes[0];
                   읽음 {category.read} / {category.total}
                 </span>
               </div>
-              <p class="category-card__desc">{category.subtitle}</p>
               <div class="progress" role="img" aria-label={`${percent}% 읽음`}>
                 <span class="progress__bar" style={`width:${percent}%`} />
               </div>
@@ -63,7 +43,6 @@ const latest = notes[0];
         })
       }
     </div>
-    {latest && <p class="section__note">최근 정리 {latest.published?.label ?? ''}</p>}
   </section>
 
   <section class="section" aria-labelledby="unread-title">
@@ -75,21 +54,7 @@ const latest = notes[0];
         더보기{unread.length > unreadPreview.length ? ` +${unread.length - unreadPreview.length}` : ''} →
       </a>
     </div>
-    {
-      unread.length > 0 ? (
-        <NoteList
-          notes={unreadPreview}
-          showCategory
-          emptyTitle="안 읽은 글이 없어요"
-          emptyText="모두 읽었습니다."
-        />
-      ) : (
-        <p class="empty">
-          <strong>안 읽은 글이 없어요</strong>
-          지금은 모든 글을 읽고 정리했습니다.
-        </p>
-      )
-    }
+    <NoteList notes={unreadPreview} showCategory emptyTitle="안 읽은 글 없음" />
   </section>
 
   <section class="section" aria-labelledby="recent-title">
@@ -99,20 +64,6 @@ const latest = notes[0];
       </h2>
       <a class="section__more" href={searchHref({ status: 'read' })}>더보기 →</a>
     </div>
-    {
-      recentRead.length > 0 ? (
-        <NoteList
-          notes={recentRead}
-          showCategory
-          emptyTitle="아직 읽은 글이 없어요"
-          emptyText="글을 읽고 정리하면 여기에 쌓입니다."
-        />
-      ) : (
-        <p class="empty">
-          <strong>아직 읽은 글이 없어요</strong>
-          글을 읽고 정리하면 이곳에 쌓입니다.
-        </p>
-      )
-    }
+    <NoteList notes={recentRead} showCategory emptyTitle="읽은 글 없음" />
   </section>
 </BaseLayout>

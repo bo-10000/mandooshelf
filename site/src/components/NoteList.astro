@@ -5,15 +5,9 @@ interface Props {
   notes: Note[];
   showCategory?: boolean;
   emptyTitle?: string;
-  emptyText?: string;
 }
 
-const {
-  notes,
-  showCategory = false,
-  emptyTitle = '글이 없어요',
-  emptyText = '이 카테고리에 아직 모인 글이 없습니다.',
-} = Astro.props;
+const { notes, showCategory = false, emptyTitle = '글이 없어요' } = Astro.props;
 ---
 
 <ul class="note-list" data-note-list>
@@ -72,5 +66,4 @@ const {
 
 <p class="empty" data-note-empty hidden={notes.length > 0}>
   <strong>{emptyTitle}</strong>
-  {emptyText}
 </p>

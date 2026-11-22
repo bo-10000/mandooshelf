@@ -11,12 +11,12 @@ interface Props {
 
 const {
   title,
-  description = '테크 블로그와 컨퍼런스에서 읽은 글을 정리해 쌓는 아카이브.',
+  description = '읽은 테크 글과 정리 노트를 모아 둔 아카이브.',
   type = 'website',
 } = Astro.props;
 
 const siteName = 'mandooshelf';
-const pageTitle = title ? `${title} · ${siteName}` : `${siteName} · 테크 아카이브`;
+const pageTitle = title ? `${title} · ${siteName}` : siteName;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://bo-10000.github.io');
 ---
 
@@ -98,9 +98,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://bo-10000.gi
 
     <footer class="site-footer">
       <div class="container site-footer__inner">
-        <span>mandooshelf · 읽고 정리한 테크 글 아카이브</span>
+        <span>mandooshelf</span>
         <span>
-          <a href="https://github.com/bo-10000/mandooshelf" target="_blank" rel="noopener noreferrer">GitHub 저장소 ↗</a>
+          <a href="https://github.com/bo-10000/mandooshelf" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
         </span>
       </div>
     </footer>

@@ -21,7 +21,7 @@ if (!entry) throw new Error(`노트를 찾지 못했습니다: ${note.id}`);
 const { Content } = await render(entry);
 
 const listHref = searchHref({ category: note.category });
-const description = `${note.title}${note.source ? ` — ${note.source}` : ''} 정리 노트.`;
+const description = note.source ? `${note.title} — ${note.source}` : note.title;
 ---
 
 <BaseLayout title={note.title} description={description} type="article">
@@ -97,7 +97,6 @@ const description = `${note.title}${note.source ? ` — ${note.source}` : ''} �
         )
       }
       <a class="button" href={listHref}>목록으로</a>
-      {!note.isRead && <span class="note-actions__note">아직 읽지 않은 글입니다.</span>}
     </div>
   </header>
 

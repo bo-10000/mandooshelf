@@ -33,7 +33,6 @@ export interface Note {
 export interface CategorySummary {
   id: string;
   title: string;
-  subtitle: string;
   notes: Note[];
   total: number;
   read: number;
@@ -142,19 +141,17 @@ function yearFromId(id: string): number | null {
 
 /* --------------------------------- 카테고리 -------------------------------- */
 
-const CATEGORY_META: Record<string, { title: string; subtitle: string }> = {
+const CATEGORY_META: Record<string, { title: string }> = {
   recommendation: {
     title: '추천 시스템',
-    subtitle: '추천·개인화·랭킹·파운데이션 모델',
   },
   'ai-agent': {
     title: 'AI 에이전트',
-    subtitle: 'AI 에이전트·LLM 활용·팀 지식',
   },
 };
 
 export function categoryMeta(id: string) {
-  return CATEGORY_META[id] ?? { title: id, subtitle: '' };
+  return CATEGORY_META[id] ?? { title: id };
 }
 
 /* ---------------------------------- 변환 ---------------------------------- */
