@@ -6,10 +6,11 @@
 ## 📂 카테고리
 
 - [**recommendation**](recommendation/) · 추천 시스템·개인화·랭킹·파운데이션 모델 (읽음 3 / 전체 7)
-- [**ai-agent**](ai-agent/) · AI 에이전트·LLM 활용·팀 지식 (읽음 0 / 전체 1)
+- [**ai-agent**](ai-agent/) · AI 에이전트·LLM 활용·팀 지식 (읽음 0 / 전체 2)
 
-## 📌 안 읽은 글 (5)
+## 📌 안 읽은 글 (6)
 
+- [판단 전에 사실을 찾지 않게: 사내 법무팀을 위한 연결된 지능 (OpenAI 웨비나) (2026)](ai-agent/%5BUNREAD%5D%20openai-connected-intelligence-in-house-legal%20(2026).md) · OpenAI for Business
 - [목적마다, 상품마다 늘던 모델을 하나로: 금융 도메인에 멀티태스크 학습 적용하기 (2026)](recommendation/%5BUNREAD%5D%20toss-multi-task-learning-finance%20(2026).md) · TOSS Tech
 - [Foundation Model for Personalized Recommendation (2025)](recommendation/%5BUNREAD%5D%20netflix-foundation-model-personalized-recommendation%20(2025).md) · Netflix TechBlog
 - [PinFM: Foundation Model for User Activity Sequences (2025)](recommendation/%5BUNREAD%5D%20pinterest-pinfm-user-activity-sequence-foundation-model%20(2025).md) · Pinterest · arXiv 2507.12704
