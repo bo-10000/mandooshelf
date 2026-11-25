@@ -97,3 +97,14 @@ frontmatter는 아래 값을 읽습니다. 모두 없어도 빌드됩니다.
 
 GitHub Pages(https://bo-10000.github.io/mandooshelf/) 기준으로 설정되어 있습니다.
 다른 호스트로 옮길 때는 `astro.config.mjs`의 `site`·`base`를 바꾸고 빌드 결과(`site/dist`)를 올리면 됩니다.
+
+### 배포를 트리거하는 경로
+
+`.github/workflows/deploy.yml`의 `paths` 필터에 걸린 경로가 바뀔 때만 자동 배포됩니다.
+
+- `site/**`
+- `recommendation/**`
+- `ai-agent/**`
+- `.github/workflows/deploy.yml`
+
+`etc/**`는 아직 이 목록에 없습니다. `etc/` 노트만 고친 커밋은 배포가 돌지 않으므로, 저장소 소유자가 워크플로 `paths`에 `etc/**`를 추가하기 전까지는 같은 커밋에 `site/` 변경을 함께 넣어 배포를 트리거합니다.
