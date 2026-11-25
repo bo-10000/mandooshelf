@@ -73,7 +73,7 @@ status: unread
 
 - PLE — *Progressive Layered Extraction* (RecSys 2020, Tencent)
 - Meta Lattice — Luo et al., KDD 2026 (arXiv:2512.09200): 광고 추천에서 수천 개 도메인×목적 모델을 비슷한 조합끼리 묶어 소수로 재설계, 품질 지표 상승 + 인프라 용량 약 20% 절감. "무엇끼리 묶을지"가 핵심이라는 점도 함께 강조.
-- 같은 팀의 이전 글: TASTE, 토스의 추천 파운데이션 플랫폼 (`recommendation/toss-taste-recommendation-foundation-platform (2026).md`)
+- 같은 팀의 이전 글: TASTE, 토스의 추천 파운데이션 플랫폼 (`notes/recommendation/toss-taste-recommendation-foundation-platform (2026).md`)
 
 ## 합치기 전에 챙길 것 / 합친 뒤 얻는 것
 

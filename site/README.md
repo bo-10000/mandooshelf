@@ -1,15 +1,18 @@
 # site — mandooshelf 웹사이트
 
-저장소 루트의 마크다운 노트(`recommendation/**`, `ai-agent/**`, `etc/**`)를 그대로 읽어서 만드는 Astro 정적 사이트입니다.
+저장소 `notes/` 아래의 마크다운 노트(`notes/recommendation/**`, `notes/ai-agent/**`, `notes/etc/**`)를 그대로 읽어서 만드는 Astro 정적 사이트입니다.
 노트 파일은 옮기지 않고, 웹 코드만 이 폴더에 모여 있습니다.
+`notes/` 바로 밑에 새 카테고리 폴더를 만들어도 `content.config.ts`를 고치지 않고 자동으로 읽힙니다.
 
 ## 구조
 
 ```text
+notes/                     # 사이트가 읽는 노트 — 카테고리 폴더별
+└── {category}/[UNREAD] {slug} (YYYY).md
 site/
 ├── astro.config.mjs       # site/base, trailing slash, 코드 하이라이트
 ├── src/
-│   ├── content.config.ts  # 상위 폴더의 .md 수집 (README.md 제외), frontmatter 스키마
+│   ├── content.config.ts  # ../notes 아래 .md 수집 (README.md 제외), frontmatter 스키마
 │   ├── lib/notes.ts       # [UNREAD] 제거한 URL 슬러그, 날짜 정규화, 카테고리·태그 집계
 │   ├── layouts/BaseLayout.astro
 │   ├── components/        # NoteList, FilterBar
@@ -57,7 +60,7 @@ npm run preview
 
 ## 노트 추가·수정
 
-1. 루트에서 노트를 추가합니다 — `{category}/[UNREAD] {slug} (YYYY).md`, frontmatter는 `templates/note-template.md` 참고.
+1. `notes/`에서 노트를 추가합니다 — `notes/{category}/[UNREAD] {slug} (YYYY).md`, frontmatter는 `templates/note-template.md` 참고.
 2. `main`에 푸시하면 `.github/workflows/deploy.yml`이 `site/`를 빌드해 GitHub Pages에 배포합니다. (약 1분)
 3. 파일명의 `[UNREAD]`가 빠지거나 붙어도 URL은 바뀌지 않습니다. 슬러그를 `lib/notes.ts`에서 정규화하기 때문입니다.
 
@@ -101,10 +104,12 @@ GitHub Pages(https://bo-10000.github.io/mandooshelf/) 기준으로 설정되어 
 ### 배포를 트리거하는 경로
 
 `.github/workflows/deploy.yml`의 `paths` 필터에 걸린 경로가 바뀔 때만 자동 배포됩니다.
+현재 목록은 아래와 같습니다.
 
 - `site/**`
 - `recommendation/**`
 - `ai-agent/**`
 - `.github/workflows/deploy.yml`
 
-`etc/**`는 아직 이 목록에 없습니다. `etc/` 노트만 고친 커밋은 배포가 돌지 않으므로, 저장소 소유자가 워크플로 `paths`에 `etc/**`를 추가하기 전까지는 같은 커밋에 `site/` 변경을 함께 넣어 배포를 트리거합니다.
+노트를 `notes/` 아래로 옮긴 뒤로는 `recommendation/**`·`ai-agent/**`가 더 이상 노트를 가리키지 않습니다. 즉 지금은 `site/`가 바뀌는 커밋만 배포를 트리거합니다.
+`notes/**`만 고친 커밋도 자동 배포되게 하려면 저장소 소유자가 GitHub 웹에서 `deploy.yml`의 `paths`에 `notes/**`를 넣거나(또는 `paths-ignore`로 전환), 그때까지는 노트 변경 커밋에 `site/` 변경을 함께 넣어 배포를 트리거합니다.

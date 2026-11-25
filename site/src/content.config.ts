@@ -1,12 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-/**
- * 노트는 `site/` 밖 저장소 루트의 카테고리 폴더에 그대로 둔다.
- * (recommendation/**, ai-agent/**, etc/**) — 파일을 옮기지 않고 읽기만 한다.
- */
-const CATEGORY_DIRS = ['recommendation', 'ai-agent', 'etc'];
-
 /** published_at / read_at 은 `2026-11-16`, `2026-11`, `2026` 등으로 제각각이라 최대한 관대하게 받는다. */
 const looseDate = z.union([z.string(), z.date(), z.number()]).nullish();
 
@@ -27,11 +21,16 @@ const status = z.preprocess(
   z.enum(['read', 'unread']),
 );
 
+/**
+ * 노트는 `site/` 밖 저장소의 `notes/` 아래 카테고리 폴더에 그대로 둔다.
+ * (notes/recommendation/**, notes/ai-agent/**, notes/etc/**) — 파일을 옮기지 않고 읽기만 한다.
+ * `notes/` 바로 밑에 새 카테고리 폴더를 만들어도 자동으로 수집된다.
+ */
 const notes = defineCollection({
   loader: glob({
-    base: '..',
-    pattern: CATEGORY_DIRS.flatMap((dir) => [`${dir}/**/*.md`, `!${dir}/**/README.md`]),
-    // id 를 원본 경로 그대로 두어 슬러그 규칙을 lib/notes.ts 한 곳에서만 관리한다.
+    base: '../notes',
+    pattern: ['**/*.md', '!**/README.md'],
+    // id 를 `notes/` 기준 상대경로 그대로 두어(예: recommendation/foo) 슬러그 규칙을 lib/notes.ts 한 곳에서만 관리한다.
     generateId: ({ entry }) => entry.replace(/\.md$/i, ''),
   }),
   schema: z.object({
