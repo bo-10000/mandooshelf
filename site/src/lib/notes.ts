@@ -148,6 +148,9 @@ const CATEGORY_META: Record<string, { title: string }> = {
   'ai-agent': {
     title: 'AI 에이전트',
   },
+  etc: {
+    title: '기타',
+  },
 };
 
 export function categoryMeta(id: string) {

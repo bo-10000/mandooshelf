@@ -3,9 +3,9 @@ import { glob } from 'astro/loaders';
 
 /**
  * 노트는 `site/` 밖 저장소 루트의 카테고리 폴더에 그대로 둔다.
- * (recommendation/**, ai-agent/**) — 파일을 옮기지 않고 읽기만 한다.
+ * (recommendation/**, ai-agent/**, etc/**) — 파일을 옮기지 않고 읽기만 한다.
  */
-const CATEGORY_DIRS = ['recommendation', 'ai-agent'];
+const CATEGORY_DIRS = ['recommendation', 'ai-agent', 'etc'];
 
 /** published_at / read_at 은 `2026-11-16`, `2026-11`, `2026` 등으로 제각각이라 최대한 관대하게 받는다. */
 const looseDate = z.union([z.string(), z.date(), z.number()]).nullish();

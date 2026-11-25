@@ -1214,6 +1214,10 @@ p {
 }
 
 .prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5em auto;
   border-radius: var(--radius-sm);
   border: 1px solid var(--line);
 }

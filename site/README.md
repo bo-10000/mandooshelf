@@ -1,6 +1,6 @@
 # site — mandooshelf 웹사이트
 
-저장소 루트의 마크다운 노트(`recommendation/**`, `ai-agent/**`)를 그대로 읽어서 만드는 Astro 정적 사이트입니다.
+저장소 루트의 마크다운 노트(`recommendation/**`, `ai-agent/**`, `etc/**`)를 그대로 읽어서 만드는 Astro 정적 사이트입니다.
 노트 파일은 옮기지 않고, 웹 코드만 이 폴더에 모여 있습니다.
 
 ## 구조
@@ -21,7 +21,9 @@ site/
 │   │   ├── [category]/[slug].astro  # 글 상세
 │   │   └── 404.astro
 │   └── styles/global.css
-└── public/favicon.svg
+└── public/
+    ├── favicon.svg
+    └── images/{slug}/   # 노트 본문 이미지 (원문 도표·다이어그램·화면)
 ```
 
 ## 로컬 실행
@@ -58,6 +60,17 @@ npm run preview
 1. 루트에서 노트를 추가합니다 — `{category}/[UNREAD] {slug} (YYYY).md`, frontmatter는 `templates/note-template.md` 참고.
 2. `main`에 푸시하면 `.github/workflows/deploy.yml`이 `site/`를 빌드해 GitHub Pages에 배포합니다. (약 1분)
 3. 파일명의 `[UNREAD]`가 빠지거나 붙어도 URL은 바뀌지 않습니다. 슬러그를 `lib/notes.ts`에서 정규화하기 때문입니다.
+
+### 본문 이미지
+
+- 원문의 도표·다이어그램·화면처럼 의미 있는 이미지만 넣습니다. 로고·아이콘·장식용 배경은 넣지 않습니다.
+- 파일은 `site/public/images/{slug}/`에 두고, 본문에는 마크다운 이미지로 씁니다 (앞에 `base`를 붙입니다).
+
+```markdown
+![이미지 설명](/mandooshelf/images/{slug}/figure-1.png)
+```
+
+- 이미지 스타일은 `.prose img`에서 `max-width: 100%; height: auto;`로 잡혀 있어 모바일에서도 잘리지 않습니다.
 
 frontmatter는 아래 값을 읽습니다. 모두 없어도 빌드됩니다.
 
