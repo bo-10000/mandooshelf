@@ -12,7 +12,6 @@ notes/            # 읽고 정리한 글 — 카테고리 폴더별
 └── etc/
 templates/        # 새 노트 템플릿
 site/             # 글을 읽어 만드는 Astro 사이트 (GitHub Pages)
-handoffs/         # 작업 기록 (저장소 콘텐츠와 무관)
 ```
 
 ## 📂 카테고리
