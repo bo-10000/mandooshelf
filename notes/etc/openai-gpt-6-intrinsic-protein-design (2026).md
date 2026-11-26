@@ -4,7 +4,8 @@ published_at: 2026-11-24
 source: "OpenAI · Science"
 url: "https://openai.com/index/gpt-6-models-demonstrate-intrinsic-protein-design-capabilities"
 tags: [protein-design, gpt-6, codex, science, wet-lab, docking, openai]
-status: unread
+status: read
+read_at: 2026-11-26
 ---
 
 ## 한 줄 요약
