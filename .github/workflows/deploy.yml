@@ -5,8 +5,7 @@ on:
     branches: [main]
     paths:
       - 'site/**'
-      - 'recommendation/**'
-      - 'ai-agent/**'
+      - 'notes/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
