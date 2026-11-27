@@ -691,21 +691,23 @@ p {
   border-radius: 10px;
 }
 
-/* 카테고리가 늘어나도 한 줄을 유지하고, 좁은 화면에서는 옆으로 밀어 본다. */
+/*
+ * 항목이 많은 필터(카테고리·출처)는 항목 수가 바뀌어도 높이가 그대로이도록 늘 한 줄을 유지하고,
+ * 폭을 넘는 항목은 아래 줄로 내리지 않고 옆으로 밀어서 본다.
+ */
 .segmented--scroll {
   max-width: 100%;
+  min-width: 0;
+  flex-wrap: nowrap;
+  white-space: nowrap;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .segmented--scroll::-webkit-scrollbar {
   display: none;
-}
-
-/* 출처처럼 항목이 많은 필터는 한 줄에 다 못 들어가면 아래 줄로 내려 보여 준다. */
-.segmented--wrap {
-  max-width: 100%;
-  flex-wrap: wrap;
 }
 
 .segmented__button {
