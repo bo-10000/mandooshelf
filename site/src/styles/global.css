@@ -612,6 +612,71 @@ p {
   min-width: 0;
 }
 
+/* 검색창은 한 줄을 끝까지 쓰고, 옆에 필터 토글이 붙는다. */
+.filter__row--search {
+  flex-wrap: nowrap;
+}
+
+.filter__toggle {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+}
+
+.filter__toggle:hover {
+  color: var(--fg);
+  border-color: var(--line-strong);
+}
+
+.filter__toggle[aria-expanded='true'] {
+  color: var(--fg);
+  background: var(--surface);
+  border-color: var(--line-strong);
+}
+
+.filter__toggle-count {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--accent);
+}
+
+.filter__toggle-count[hidden] {
+  display: none;
+}
+
+.filter__panel {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.filter__panel[hidden] {
+  display: none;
+}
+
+/* 접힌 상태에서 지금 걸린 필터를 칩으로 보여 준다(누르면 그 필터만 풀린다). */
+.filter__active {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter__active[hidden] {
+  display: none;
+}
+
 /* 조건에 맞는 태그가 없을 때 JS 가 row 를 통째로 숨긴다(display: flex 가 hidden 을 이기지 않게). */
 .filter__row[hidden] {
   display: none;

@@ -69,6 +69,10 @@ function init(container: HTMLElement) {
   const tagRow = root.querySelector<HTMLElement>('[data-tag-row]');
   const tagList = root.querySelector<HTMLElement>('[data-tag-list]');
   const tagToggle = root.querySelector<HTMLButtonElement>('[data-tag-toggle]');
+  const filterToggle = root.querySelector<HTMLButtonElement>('[data-filter-toggle]');
+  const filterPanel = root.querySelector<HTMLElement>('[data-filter-panel]');
+  const toggleCount = root.querySelector<HTMLElement>('[data-filter-toggle-count]');
+  const activeFilters = root.querySelector<HTMLElement>('[data-active-filters]');
 
   // 처음에 펼쳐 보여 줄 태그 수는 FilterBar 가 내려 준다.
   const limit = Number(tagList?.dataset.tagLimit ?? '');
@@ -206,10 +210,101 @@ function init(container: HTMLElement) {
       );
     }
     if (sortSelect) sortSelect.value = state.sort;
+    if (toggleCount) {
+      const active = activeCount();
+      const expanded = filterPanel ? !filterPanel.hidden : false;
+      toggleCount.textContent = active > 0 ? String(active) : '';
+      toggleCount.hidden = active === 0 || !expanded;
+    }
     if (clearTagsButton) {
       const wrapper = clearTagsButton.closest('li');
       clearTagsButton.hidden = state.tags.length === 0;
       if (wrapper) wrapper.hidden = state.tags.length === 0;
+    }
+  }
+
+  /** 지금 걸려 있는 필터 수 — 검색어는 검색창에 보이니 세지 않는다. */
+  function activeCount(): number {
+    return (
+      (state.category !== 'all' ? 1 : 0) +
+      (state.status !== 'all' ? 1 : 0) +
+      (state.source !== 'all' ? 1 : 0) +
+      state.tags.length
+    );
+  }
+
+  /** 필터 버튼·분류 이름만 (편수 뺀 글자). */
+  function labelOf(button: HTMLButtonElement | undefined, fallback: string): string {
+    if (!button) return fallback;
+    const clone = button.cloneNode(true) as HTMLElement;
+    for (const count of Array.from(clone.querySelectorAll('.segmented__count'))) count.remove();
+    return clone.textContent?.trim() || fallback;
+  }
+
+  /**
+   * 필터를 접어 둔 동안, 걸려 있는 필터를 칩으로 보여 준다 — 누르면 그 필터만 풀린다.
+   */
+  function renderActiveFilters() {
+    if (!activeFilters) return;
+
+    const items: { label: string; clear: () => void }[] = [];
+    if (state.category !== 'all') {
+      const button = categoryButtons.find((candidate) => candidate.dataset.category === state.category);
+      items.push({
+        label: labelOf(button, state.category),
+        clear: () => {
+          state.category = 'all';
+        },
+      });
+    }
+    if (state.status !== 'all') {
+      const button = statusButtons.find((candidate) => candidate.dataset.status === state.status);
+      items.push({
+        label: labelOf(button, state.status),
+        clear: () => {
+          state.status = 'all';
+        },
+      });
+    }
+    if (state.source !== 'all') {
+      items.push({
+        label: state.source,
+        clear: () => {
+          state.source = 'all';
+        },
+      });
+    }
+    for (const tag of state.tags) {
+      items.push({
+        label: tag,
+        clear: () => {
+          state.tags = state.tags.filter((selected) => selected !== tag);
+        },
+      });
+    }
+
+    activeFilters.replaceChildren();
+    const collapsed = filterPanel ? filterPanel.hidden : true;
+    activeFilters.hidden = !collapsed || items.length === 0;
+    if (activeFilters.hidden) return;
+
+    for (const item of items) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'tag-chip';
+      chip.setAttribute('aria-pressed', 'true');
+      chip.setAttribute('aria-label', `${item.label} 필터 해제`);
+      chip.textContent = item.label;
+      const x = document.createElement('span');
+      x.className = 'tag-chip__x';
+      x.setAttribute('aria-hidden', 'true');
+      x.textContent = '×';
+      chip.append(x);
+      chip.addEventListener('click', () => {
+        item.clear();
+        apply();
+      });
+      activeFilters.append(chip);
     }
   }
 
@@ -339,6 +434,7 @@ function init(container: HTMLElement) {
     renderSources(sourceCounts);
     renderTags(counts, new Set(activeTags));
     syncControls();
+    renderActiveFilters();
     syncClearButton();
     syncUrl();
   }
@@ -408,6 +504,15 @@ function init(container: HTMLElement) {
     sortSelect.addEventListener('change', () => {
       state.sort = sortSelect.value;
       applySort();
+      apply();
+    });
+  }
+
+  if (filterToggle) {
+    filterToggle.addEventListener('click', () => {
+      const expand = filterToggle.getAttribute('aria-expanded') !== 'true';
+      if (filterPanel) filterPanel.hidden = !expand;
+      filterToggle.setAttribute('aria-expanded', String(expand));
       apply();
     });
   }
