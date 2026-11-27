@@ -18,12 +18,11 @@ site/             # 글을 읽어 만드는 Astro 사이트 (GitHub Pages)
 
 - [**recommendation**](notes/recommendation/) · 추천 시스템·개인화·랭킹·파운데이션 모델 (읽음 3 / 전체 7)
 - [**ai-agent**](notes/ai-agent/) · AI 에이전트·LLM 활용·팀 지식 (읽음 0 / 전체 4)
-- [**etc**](notes/etc/) · 추천·에이전트로 묶기 애매한 글 (읽음 1 / 전체 2)
+- [**etc**](notes/etc/) · 추천·에이전트로 묶기 애매한 글 (읽음 2 / 전체 2)
 
-## 📌 안 읽은 글 (9)
+## 📌 안 읽은 글 (8)
 
 - [에이전트엔 크롤링 대신 검색을: Cloudflare Search for Agents (2026)](notes/ai-agent/%5BUNREAD%5D%20cloudflare-search-for-agents%20(2026).md) · Cloudflare Blog
-- [아마추어 천문학자가 Codex·Astra로 외계행성 후보를 찾다 (OpenAI) (2026)](notes/etc/%5BUNREAD%5D%20openai-astra-distant-planets%20(2026).md) · OpenAI · Science
 - [작은 에이전시가 '점(dot)' 하나로: Intentful의 리서치·제안서·메시지 처리 (OpenAI) (2026)](notes/ai-agent/%5BUNREAD%5D%20openai-intentful-dots-agent-workflow%20(2026).md) · OpenAI for Business
 - [판단 전에 사실을 찾지 않게: 사내 법무팀을 위한 연결된 지능 (OpenAI 웨비나) (2026)](notes/ai-agent/%5BUNREAD%5D%20openai-connected-intelligence-in-house-legal%20(2026).md) · OpenAI for Business
 - [목적마다, 상품마다 늘던 모델을 하나로: 금융 도메인에 멀티태스크 학습 적용하기 (2026)](notes/recommendation/%5BUNREAD%5D%20toss-multi-task-learning-finance%20(2026).md) · TOSS Tech

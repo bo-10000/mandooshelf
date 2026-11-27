@@ -4,7 +4,8 @@ published_at: 2026-11-24
 source: "OpenAI · Science"
 url: "https://openai.com/index/searching-for-distant-planets-with-astra"
 tags: [astra, codex, ai-for-science, astronomy, exoplanet, agent, citizen-science]
-status: unread
+status: read
+read_at: 2026-11-27
 ---
 
 ## 한 줄 요약
