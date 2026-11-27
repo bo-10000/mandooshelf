@@ -19,6 +19,8 @@ export interface Note {
   slug: string;
   title: string;
   source: string;
+  /** 출처 필터용 대표 출처명 (OpenAI · Science, OpenAI for Business → OpenAI) */
+  sourceGroup: string;
   url: string;
   tags: string[];
   isRead: boolean;
@@ -52,6 +54,7 @@ export function href(path = ''): string {
 export interface SearchQuery {
   category?: string;
   status?: 'read' | 'unread';
+  source?: string;
   tags?: string[];
   q?: string;
   sort?: string;
@@ -65,6 +68,7 @@ export function searchHref(query: SearchQuery = {}): string {
   const params = new URLSearchParams();
   if (query.category && query.category !== 'all') params.set('category', query.category);
   if (query.status === 'read' || query.status === 'unread') params.set('status', query.status);
+  if (query.source && query.source !== 'all') params.set('source', query.source);
   if (query.tags && query.tags.length > 0) params.set('tags', query.tags.join(','));
   if (query.q && query.q.trim()) params.set('q', query.q.trim());
   if (query.sort && query.sort !== 'published-desc') params.set('sort', query.sort);
@@ -157,6 +161,31 @@ export function categoryMeta(id: string) {
   return CATEGORY_META[id] ?? { title: id };
 }
 
+/* ---------------------------------- 출처 ---------------------------------- */
+
+/**
+ * `source` 값의 세부 구분(`·` 뒤 매체·행사명, 부가 설명)을 떼고 대표 출처명으로 묶는다.
+ *   "OpenAI · Science", "OpenAI for Business · Customer Story" → OpenAI
+ *   "TOSS Tech" → Toss, "kakao tech · if(kakao)25" → Kakao, "Netflix TechBlog" → Netflix
+ */
+const SOURCE_RULES: { match: RegExp; label: string }[] = [
+  { match: /^openai/i, label: 'OpenAI' },
+  { match: /^naver/i, label: 'NAVER D2' },
+  { match: /^toss/i, label: 'Toss' },
+  { match: /^kakao/i, label: 'Kakao' },
+  { match: /^spotify/i, label: 'Spotify' },
+  { match: /^pinterest/i, label: 'Pinterest' },
+  { match: /^netflix/i, label: 'Netflix' },
+  { match: /^cloudflare/i, label: 'Cloudflare' },
+];
+
+export function sourceGroup(source: string): string {
+  const head = source.split('·')[0].replace(/\([^)]*\)/g, '').trim();
+  if (!head) return '기타';
+  const rule = SOURCE_RULES.find((entry) => entry.match.test(head));
+  return rule ? rule.label : head;
+}
+
 /* ---------------------------------- 변환 ---------------------------------- */
 
 function toNote(entry: RawNote): Note {
@@ -177,6 +206,7 @@ function toNote(entry: RawNote): Note {
     slug,
     title,
     source: data.source ?? '',
+    sourceGroup: sourceGroup(data.source ?? ''),
     url: data.url ?? '',
     tags: tagsList,
     isRead,
@@ -262,6 +292,18 @@ export function tagCounts(notes: Note[]): { tag: string; count: number }[] {
   return [...counts.entries()]
     .map(([tag, count]) => ({ tag, count }))
     .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, 'en'));
+}
+
+/** 대표 출처명별 편수 — 많은 순, 같으면 이름순 */
+export function sourceCounts(notes: Note[]): { source: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const note of notes) {
+    const source = note.sourceGroup || '기타';
+    counts.set(source, (counts.get(source) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([source, count]) => ({ source, count }))
+    .sort((a, b) => b.count - a.count || a.source.localeCompare(b.source, 'en'));
 }
 
 export function sortByRead(notes: Note[], limit?: number): Note[] {

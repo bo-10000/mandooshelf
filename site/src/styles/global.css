@@ -612,6 +612,11 @@ p {
   min-width: 0;
 }
 
+/* 조건에 맞는 태그가 없을 때 JS 가 row 를 통째로 숨긴다(display: flex 가 hidden 을 이기지 않게). */
+.filter__row[hidden] {
+  display: none;
+}
+
 .segmented {
   display: inline-flex;
   padding: 3px;
@@ -842,6 +847,12 @@ p {
 .tag-chip--more {
   border-style: dashed;
   color: var(--fg-1);
+}
+
+.tag-chip__count {
+  margin-left: 5px;
+  font-size: 10px;
+  opacity: 0.55;
 }
 
 .tag-chip__x {

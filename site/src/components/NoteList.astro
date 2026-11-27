@@ -18,6 +18,7 @@ const { notes, showCategory = false, emptyTitle = '글이 없어요' } = Astro.p
         data-note
         data-status={note.isRead ? 'read' : 'unread'}
         data-category={note.category}
+        data-source={note.sourceGroup}
         data-tags={note.tags.join('|').toLowerCase()}
         data-year={note.year ?? ''}
         data-published={note.published?.sort ?? ''}

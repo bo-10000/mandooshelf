@@ -2,10 +2,11 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FilterBar from '../../components/FilterBar.astro';
 import NoteList from '../../components/NoteList.astro';
-import { getAllNotes, getCategories, href, tagCounts } from '../../lib/notes';
+import { getAllNotes, getCategories, href, sourceCounts, tagCounts } from '../../lib/notes';
 
 const notes = await getAllNotes();
 const categories = await getCategories();
+const sources = sourceCounts(notes);
 const tags = tagCounts(notes);
 ---
 
@@ -19,7 +20,7 @@ const tags = tagCounts(notes);
 
   <h1 class="sr-only">모든 글</h1>
 
-  <FilterBar notes={notes} categories={categories} tags={tags} />
+  <FilterBar notes={notes} categories={categories} sources={sources} tags={tags} />
 
   <div class="list-block">
     <NoteList notes={notes} showCategory emptyTitle="일치하는 글 없음" />

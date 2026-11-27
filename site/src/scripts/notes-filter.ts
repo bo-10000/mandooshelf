@@ -1,7 +1,13 @@
 /**
- * 통합 목록 필터 — 카테고리 · 읽음 상태 · 태그(다중 선택) · 검색어 · 정렬.
+ * 통합 목록 필터 — 카테고리 · 읽음 상태 · 출처 · 태그(다중 선택) · 검색어 · 정렬.
  * 상태를 URL 쿼리에 남겨서 링크로 공유해도 같은 화면이 열린다.
- *   /search/?category=recommendation&status=unread&tags=cold-start,embedding&q=netflix&sort=title
+ *   /search/?category=recommendation&status=unread&source=OpenAI&tags=cold-start,embedding&q=netflix
+ *
+ * 필터끼리 서로 맞물려 동작한다.
+ *   - 태그 칩은 지금 조건(카테고리 · 읽음 상태 · 출처 · 검색어 · 이미 선택한 다른 태그)을 만족하는
+ *     글에 실제로 들어 있는 태그만, 글 수 많은 순으로 남긴다.
+ *   - 출처 버튼의 편수도 다른 조건이 바뀔 때마다 다시 세고, 조건에 없는 출처는 숨긴다.
+ *   - 조건이 바뀌어 사라진 태그·출처 선택은 자동으로 풀어 0건에 갇히지 않게 한다.
  */
 
 type Status = 'all' | 'unread' | 'read';
@@ -9,10 +15,35 @@ type Status = 'all' | 'unread' | 'read';
 interface State {
   category: string;
   status: Status;
+  source: string;
   /** 선택한 태그 (원래 표기 유지) */
   tags: string[];
   q: string;
   sort: string;
+}
+
+interface ItemMeta {
+  item: HTMLElement;
+  category: string;
+  status: string;
+  source: string;
+  tags: string[];
+  search: string;
+}
+
+interface TagChip {
+  button: HTMLButtonElement;
+  li: HTMLElement;
+  tag: string;
+  lower: string;
+  count: number;
+  countEl: HTMLElement | null;
+}
+
+interface SourceButton {
+  button: HTMLButtonElement;
+  source: string;
+  countEl: HTMLElement | null;
 }
 
 const root = document.querySelector<HTMLElement>('[data-filter-root]');
@@ -28,14 +59,48 @@ function init(container: HTMLElement) {
   const items = Array.from(list.querySelectorAll<HTMLElement>('[data-note]'));
   const categoryButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-category]'));
   const statusButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-status]'));
+  const sourceButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-source]'));
   const tagButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-tag]'));
   const searchInput = root.querySelector<HTMLInputElement>('[data-search]');
   const sortSelect = root.querySelector<HTMLSelectElement>('[data-sort]');
   const countEl = root.querySelector<HTMLElement>('[data-visible-count]');
   const clearSearchButton = root.querySelector<HTMLButtonElement>('[data-search-clear]');
   const clearTagsButton = root.querySelector<HTMLButtonElement>('[data-clear-tags]');
-  const tagExtras = Array.from(root.querySelectorAll<HTMLElement>('[data-tag-extra]'));
+  const tagRow = root.querySelector<HTMLElement>('[data-tag-row]');
+  const tagList = root.querySelector<HTMLElement>('[data-tag-list]');
   const tagToggle = root.querySelector<HTMLButtonElement>('[data-tag-toggle]');
+
+  // 처음에 펼쳐 보여 줄 태그 수는 FilterBar 가 내려 준다.
+  const limit = Number(tagList?.dataset.tagLimit ?? '');
+  const visibleLimit = Number.isFinite(limit) && limit > 0 ? limit : 12;
+
+  const metas: ItemMeta[] = items.map((item) => ({
+    item,
+    category: item.dataset.category ?? '',
+    status: item.dataset.status ?? '',
+    source: item.dataset.source ?? '',
+    tags: (item.dataset.tags ?? '').split('|').filter(Boolean),
+    search: item.dataset.search ?? '',
+  }));
+
+  const tagChips: TagChip[] = tagButtons
+    .map((button) => ({
+      button,
+      li: button.closest('li') as HTMLElement | null,
+      tag: button.dataset.tag ?? '',
+      lower: (button.dataset.tag ?? '').toLowerCase(),
+      count: 0,
+      countEl: button.querySelector<HTMLElement>('[data-tag-count]'),
+    }))
+    .filter((chip): chip is TagChip => Boolean(chip.tag && chip.li));
+
+  const sourceList: SourceButton[] = sourceButtons.map((button) => ({
+    button,
+    source: button.dataset.source ?? 'all',
+    countEl: button.querySelector<HTMLElement>('[data-source-count]'),
+  }));
+
+  let tagsExpanded = false;
 
   const params = new URLSearchParams(window.location.search);
   const validStatus = (value: string | null): Status =>
@@ -59,6 +124,13 @@ function init(container: HTMLElement) {
     ? requestedCategory
     : 'all';
 
+  const requestedSource = params.get('source') ?? 'all';
+  const validSource = ['all', ...sourceButtons.map((button) => button.dataset.source ?? '')].includes(
+    requestedSource,
+  )
+    ? requestedSource
+    : 'all';
+
   // 예전 링크의 `?tag=`(단일)도 `?tags=`와 같이 읽는다.
   const tagParam = params.get('tags') ?? params.get('tag') ?? '';
   const initialTags: string[] = [];
@@ -70,6 +142,7 @@ function init(container: HTMLElement) {
   const state: State = {
     category: validCategory,
     status: validStatus(params.get('status')),
+    source: validSource,
     tags: initialTags,
     q: params.get('q') ?? '',
     sort: validSort(params.get('sort')),
@@ -123,6 +196,9 @@ function init(container: HTMLElement) {
     for (const button of statusButtons) {
       button.setAttribute('aria-pressed', String(button.dataset.status === state.status));
     }
+    for (const button of sourceButtons) {
+      button.setAttribute('aria-pressed', String((button.dataset.source ?? 'all') === state.source));
+    }
     for (const button of tagButtons) {
       button.setAttribute(
         'aria-pressed',
@@ -141,6 +217,7 @@ function init(container: HTMLElement) {
     const next = new URLSearchParams();
     if (state.category !== 'all') next.set('category', state.category);
     if (state.status !== 'all') next.set('status', state.status);
+    if (state.source !== 'all') next.set('source', state.source);
     if (state.tags.length > 0) next.set('tags', state.tags.join(','));
     const query = state.q.trim();
     if (query) next.set('q', query);
@@ -149,24 +226,118 @@ function init(container: HTMLElement) {
     window.history.replaceState(null, '', window.location.pathname + (search ? `?${search}` : ''));
   }
 
+  /** 출처 버튼의 편수 갱신 — 0편인 출처는 숨기고, '전체'는 남은 출처의 합. */
+  function renderSources(counts: Map<string, number>) {
+    let total = 0;
+    for (const value of counts.values()) total += value;
+
+    for (const entry of sourceList) {
+      const isAll = entry.source === 'all';
+      const count = isAll ? total : (counts.get(entry.source) ?? 0);
+      const isSelected = isAll ? state.source === 'all' : state.source === entry.source;
+      if (entry.countEl) entry.countEl.textContent = String(count);
+      entry.button.hidden = !isAll && count === 0 && !isSelected;
+    }
+  }
+
+  /**
+   * 태그 칩 갱신 — `counts` 는 지금 조건(+선택한 태그)을 만족하는 글에서 센 태그별 편수.
+   * 글 수 많은 순으로 줄 세우고, 선택한 태그는 같은 수 안에서 앞으로 모아 해제하기 쉽게 둔다.
+   */
+  function renderTags(counts: Map<string, number>, selected: Set<string>) {
+    const available: TagChip[] = [];
+
+    for (const chip of tagChips) {
+      const count = counts.get(chip.lower) ?? 0;
+      const isSelected = selected.has(chip.lower);
+      chip.count = count;
+      chip.button.title = `${chip.tag} · ${count}개`;
+      chip.button.setAttribute('aria-label', `${chip.tag} ${count}개`);
+      if (chip.countEl) chip.countEl.textContent = String(count);
+      if (count > 0 || isSelected) available.push(chip);
+    }
+
+    // 글 수 많은 순, 같은 수면 이름순. 선택한 태그는 그 안에서 앞으로 모아 해제하기 쉽게 둔다.
+    const ranked = [...available].sort(
+      (a, b) => b.count - a.count || a.tag.localeCompare(b.tag, 'en'),
+    );
+    const pinned = state.tags
+      .map((tag) => ranked.find((chip) => chip.lower === tag.toLowerCase()))
+      .filter((chip): chip is TagChip => Boolean(chip));
+    const pinnedSet = new Set(pinned);
+    const ordered = [...pinned, ...ranked.filter((chip) => !pinnedSet.has(chip))];
+
+    const extra = Math.max(0, ordered.length - visibleLimit);
+    if (extra === 0) tagsExpanded = false;
+    const shown = new Set(tagsExpanded ? ordered : ordered.slice(0, visibleLimit));
+
+    // 순서를 실제로 바꿔야 글 수 순서가 화면에 반영된다(토글·해제 버튼은 항상 끝).
+    if (tagList) {
+      for (const chip of ordered) tagList.append(chip.li);
+      const toggleItem = tagToggle?.closest('li');
+      if (toggleItem) tagList.append(toggleItem);
+      const clearItem = clearTagsButton?.closest('li');
+      if (clearItem) tagList.append(clearItem);
+    }
+
+    for (const chip of tagChips) chip.li.hidden = !shown.has(chip);
+
+    if (tagRow) tagRow.hidden = ordered.length === 0;
+
+    if (tagToggle) {
+      tagToggle.setAttribute('aria-expanded', String(tagsExpanded));
+      tagToggle.textContent = tagsExpanded ? '태그 접기' : `태그 더 보기 +${extra}`;
+      const wrapper = tagToggle.closest('li');
+      if (wrapper) wrapper.hidden = extra === 0;
+    }
+  }
+
   function apply() {
     const query = state.q.trim().toLowerCase();
-    const selected = state.tags.map((tag) => tag.toLowerCase());
-    let visible = 0;
+    const base = metas.filter(
+      (meta) =>
+        (state.category === 'all' || meta.category === state.category) &&
+        (state.status === 'all' || meta.status === state.status) &&
+        (!query || meta.search.includes(query)),
+    );
+    const baseSet = new Set(base);
 
-    for (const item of items) {
-      const categoryOk = state.category === 'all' || item.dataset.category === state.category;
-      const statusOk = state.status === 'all' || item.dataset.status === state.status;
-      const itemTags = (item.dataset.tags ?? '').split('|');
-      const tagsOk = selected.every((tag) => itemTags.includes(tag));
-      const searchOk = !query || (item.dataset.search ?? '').includes(query);
-      const show = categoryOk && statusOk && tagsOk && searchOk;
-      item.classList.toggle('is-hidden', !show);
-      if (show) visible += 1;
+    // 고른 출처에 없는 태그 선택은 풀어 준다.
+    if (state.tags.length > 0) {
+      const reachable = new Set<string>();
+      for (const meta of base) {
+        if (state.source !== 'all' && meta.source !== state.source) continue;
+        for (const tag of meta.tags) reachable.add(tag);
+      }
+      state.tags = state.tags.filter((tag) => reachable.has(tag.toLowerCase()));
+    }
+
+    const activeTags = state.tags.map((tag) => tag.toLowerCase());
+    const tagsOk = (meta: ItemMeta) => activeTags.every((tag) => meta.tags.includes(tag));
+
+    // 출처별 편수는 태그까지 반영해 다시 센다. 0편이 된 출처 선택은 풀어 준다.
+    const sourceCounts = new Map<string, number>();
+    for (const meta of base) {
+      if (!tagsOk(meta)) continue;
+      sourceCounts.set(meta.source, (sourceCounts.get(meta.source) ?? 0) + 1);
+    }
+    if (state.source !== 'all' && !sourceCounts.has(state.source)) state.source = 'all';
+
+    let visible = 0;
+    const counts = new Map<string, number>();
+
+    for (const meta of metas) {
+      const show = baseSet.has(meta) && tagsOk(meta) && (state.source === 'all' || meta.source === state.source);
+      meta.item.classList.toggle('is-hidden', !show);
+      if (!show) continue;
+      visible += 1;
+      for (const tag of meta.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
     }
 
     if (countEl) countEl.textContent = String(visible);
     if (empty) empty.hidden = visible !== 0;
+    renderSources(sourceCounts);
+    renderTags(counts, new Set(activeTags));
     syncControls();
     syncClearButton();
     syncUrl();
@@ -182,6 +353,13 @@ function init(container: HTMLElement) {
   for (const button of statusButtons) {
     button.addEventListener('click', () => {
       state.status = (button.dataset.status as Status) ?? 'all';
+      apply();
+    });
+  }
+
+  for (const button of sourceButtons) {
+    button.addEventListener('click', () => {
+      state.source = button.dataset.source ?? 'all';
       apply();
     });
   }
@@ -234,23 +412,10 @@ function init(container: HTMLElement) {
     });
   }
 
-  function setTagsExpanded(expanded: boolean) {
-    for (const extra of tagExtras) {
-      extra.hidden = !expanded;
-      const chip = extra.closest('li');
-      if (chip) chip.hidden = !expanded;
-    }
-    if (tagToggle) {
-      tagToggle.setAttribute('aria-expanded', String(expanded));
-      tagToggle.textContent = expanded ? '태그 접기' : `태그 더 보기 +${tagExtras.length}`;
-      const wrapper = tagToggle.closest('li');
-      if (wrapper) wrapper.hidden = tagExtras.length === 0;
-    }
-  }
-
   if (tagToggle) {
     tagToggle.addEventListener('click', () => {
-      setTagsExpanded(tagToggle.getAttribute('aria-expanded') !== 'true');
+      tagsExpanded = tagToggle.getAttribute('aria-expanded') !== 'true';
+      apply();
     });
   }
 
@@ -259,12 +424,6 @@ function init(container: HTMLElement) {
       state.tags = [];
       apply();
     });
-  }
-
-  // URL 로 들어온 태그가 접힌 쪽에 있으면 펼쳐서 현재 선택을 보이게 한다.
-  const selectedLower = new Set(state.tags.map((tag) => tag.toLowerCase()));
-  if (selectedLower.size > 0 && tagExtras.some((extra) => selectedLower.has((extra.dataset.tag ?? '').toLowerCase()))) {
-    setTagsExpanded(true);
   }
 
   applySort();
