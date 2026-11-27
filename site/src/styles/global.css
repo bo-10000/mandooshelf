@@ -702,6 +702,12 @@ p {
   display: none;
 }
 
+/* 출처처럼 항목이 많은 필터는 한 줄에 다 못 들어가면 아래 줄로 내려 보여 준다. */
+.segmented--wrap {
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
 .segmented__button {
   appearance: none;
   border: 1px solid transparent;
