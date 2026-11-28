@@ -7,8 +7,8 @@ const notes = await getAllNotes();
 const categories = await getCategories();
 const summary = totalSummary(notes);
 const unread = notes.filter((note) => !note.isRead);
-const unreadPreview = unread.slice(0, 6);
-const recentRead = sortByRead(notes, 4);
+const unreadPreview = unread.slice(0, 3);
+const recentRead = sortByRead(notes, 3);
 const calendar = readCalendar(notes);
 const calendarDays = calendar.weeks.flatMap((week) => week.days);
 ---
@@ -58,7 +58,7 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
         안 읽은 글 <span class="section__count">{unread.length}</span>
       </h2>
       <a class="section__more" href={searchHref({ status: 'unread' })}>
-        더보기{unread.length > unreadPreview.length ? ` +${unread.length - unreadPreview.length}` : ''} →
+        더보기 →
       </a>
     </div>
     <NoteList notes={unreadPreview} showCategory emptyTitle="안 읽은 글 없음" />
