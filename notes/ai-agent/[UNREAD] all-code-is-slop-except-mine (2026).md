@@ -108,20 +108,21 @@ status: unread
 **검증 생성·유지 (발표의 핵심과 직결)**
 
 - `create-verification-skill`: 프로젝트에 앱 동작을 증명할 스크립트가 없을 때, 사용자가 앱을 쓰는 방식 그대로 조작하는 프로젝트 로컬 검증 스킬을 만든다. 언어·프레임워크·플랫폼을 가리지 않는다. 결과물이 `SKILL.md`와 feature map(`references/features/`)이다.
-- `maintain-verification-skill`: feature map이 앱과 어긋났는지 주기적으로 점검한다. 기능별 소스 리더를 병렬로 돌리고 실제 앱을 한 번 구동해 본 뒤, 증명된 수정만 담아 최대 PR 하나를 낸다(제품 코드는 건드리지 않는다).
+- `maintain-verification-skill`: feature map이 앱과 어긋났는지 주기적으로 점검한다. 기능별 소스 리더를 병렬로 돌리고 실제 앱을 한 번 구동해 본 뒤, 증명된 수정만 담아 최대 PR 하나를 낸다(제품 코드는 건드리지 않는다). 결과는 clean(고칠 것 없음), changed(PR 하나), blocked(끝내지 못함) 중 하나로만 보고한다.
+- `maintain-verification-skill`은 frontmatter에 `disable-model-invocation: true`가 붙어 있어 모델이 문맥을 보고 알아서 집어 들지 않는다. `features/` 전체를 병렬로 읽고 앱의 모든 기능을 한 바퀴씩 실제로 돌리는 전체 감사라서, `/maintain-verification-skill`을 직접 부르거나 스케줄 실행으로 거는 쪽을 전제로 설계된 스킬이다. `unslop`, `statechart`, `how`, `why`, `no-comments`처럼 확인해 본 다른 스킬도 같은 값을 두고 있다.
 - `create-formal-verification-skill`: 테스트가 닿지 않는 곳 — 동시성, 재시도, 상태 기계, 파서, unsafe 코드 — 에서 성질 하나를 골라 TLA+·Lean 같은 맞는 도구로 검증하고, 코드가 바뀔 때마다 다시 돌릴 프로젝트 로컬 스킬을 만든다.
 - `maintain-formal-verification-skill`: 검증이 덮는 코드가 바뀐 뒤 모델·하네스·속성을 지금 코드에 맞게 고치고 다시 돌려, 실패가 검증 쪽 드리프트인지 코드 버그인지 갈라 말한다.
 
 **시각화·병렬 실행**
 
-- `statechart`: 상태를 오가는 시스템의 TLA+ 모델을 검사해, 사용자가 보는 상태를 Mermaid 상태도로 그린다. 규칙을 깨는 상태마다 거기까지 가는 최단 경로를 함께 준다.
+- `statechart`: 그림만 그리는 도구가 아니다. 저장소 밖 scratch 폴더에 TLA+ 명세와 설정을 쓴 뒤 `scripts/statechart`로 TLC 모델 체커를 돌려(첫 실행 때 mise로 TLC와 Java를 설치) 규칙을 깨는 상태가 있는지 먼저 검사하고, 그 모델을 사용자가 보는 상태 기준의 Mermaid 상태도로 그린다. 규칙을 깨는 상태마다 거기까지 가는 최단 경로를 함께 준다.
 - `swarm`: 워커 N개를 병렬로 띄워 각자 다른 조각이나 경쟁을 맡기고, 다 끝나면 리포트 하나로 모은다. 예: `packages/` 아래 패키지마다 `check.sh`를 워커 하나씩 돌려 한 장으로 정리.
 - `arena`: 같은 일을 N개 시도해 놓고 각 시도의 좋은 부분을 골라 합친다. `interrogate`는 여러 모델이 diff를 깨뜨리려 시도하고, 실행으로 증명된 지적만 남긴다.
 
 **코드 품질·가드레일**
 
-- `no-comments`: Comment Sicko라는 읽기 전용 서브에이전트로 주석을 걷어내고, 받아들인 지적을 고친 뒤 "이 제약이 정당하다"는 주장에는 주석 대신 린트·타입·런타임 검사로 인코딩할 방법을 제안한다.
-- `unslop`: 글에서 AI 티를 지운다(코드가 아니라 산문 쪽 도구).
+- `no-comments`: **코드 쪽** 주석 정리 도구. Comment Sicko라는 읽기 전용 서브에이전트로 주석을 걷어내고, 받아들인 지적을 고친 뒤 "이 제약이 정당하다"는 주장에는 주석 대신 린트·타입·런타임 검사로 인코딩할 방법을 제안한다.
+- `unslop`: 코드가 아니라 **산문 쪽** 도구다. README·기술 문서·글에서 AI 티를 지우는 33개 규칙을 두고 있고, `crucial`·`delve`·`landscape` 같은 AI 단골 단어, 끝에 붙는 `-ing` 구문, `not just X, but Y`, "I hope this helps!" 같은 챗봇 인사말, 장식 이모지, em dash를 금지한다. 규칙마다 고정 번호가 있어 다른 스킬이 그 번호로 인용한다.
 - `typescript-best-practices`: `type-system-discipline` 원칙을 TS 문법 수준으로 풀어 준다.
 - `principle-*` 24개: 원칙 하나에 짧은 스킬 하나. core / architecture / verification / delegation / meta 다섯 묶음이고, 발표 내용과 바로 이어지는 것들이 있다.
   - `encode-lessons-in-structure`: 규칙을 글로 더 쓰지 말고 린트·메타데이터 플래그·런타임 검사·스크립트로 인코딩한다.
@@ -139,11 +140,14 @@ status: unread
 
 ### poteto 개인 GitHub 공개 저장소 3종
 
+앞서 본 `verification-skill-example`까지 넣으면 발표와 직결된 공개물이 네 개인데, 모두 이번 11월 발표를 위해 새로 만든 것이 아니라 2026년 상반기부터 차례로 공개한 것이다. 저장소 생성일은 `noodle` 2026-02-22, `brainmaxxing` 2026-02-27, `how` 2026-04-14, `verification-skill-example` 2026-07-30이다(2026-11-28 GitHub API로 확인).
+
 - `poteto/how` — https://github.com/poteto/how
   - 코드베이스 설명 전용 Cursor 플러그인(`/how` 스킬 하나). "이 서브시스템은 어떻게 돌아가나"를 시니어가 새 영역에 온보딩하듯 설명한다: Overview, Key Concepts, How It Works, Where Things Live, Gotchas.
   - 질문이 여러 파일·서비스에 걸치면 탐색 각도를 2에서 4개로 쪼개 explorer 서브에이전트를 병렬로 띄우고, 합성 에이전트가 그 결과를 하나의 설명으로 맞춘다. 단순한 질문은 팬아웃 없이 한 번에 끝낸다.
   - "설계도 비판해 줘"를 덧붙이면 Critique 모드로 넘어가 여러 모델의 독립 비평가를 붙인다.
   - 적용: `skills/how/` 폴더를 `.cursor/skills/how/`로 복사하거나 플러그인으로 추가한다. `SKILL.md`가 라우팅을 맡고 `references/`의 프롬프트 템플릿을 서브에이전트에 넘긴다.
+  - pstack 안의 `how`와는 뿌리가 같고 버전이 다르다. 이 저장소의 `SKILL.md`는 140줄짜리 풀 버전으로 병렬 explorer와 여러 모델이 붙는 Critique 모드를 갖췄고, `pstack/skills/how/SKILL.md`는 21줄로 압축해 서브에이전트 하나만 띄워 한 번에 설명한다. 대신 "왜 이렇게 짰는지"를 묻는 일은 `why` 스킬로 떼어 냈고, `disable-model-invocation: true`가 붙어 있다.
 - `poteto/noodle` — https://github.com/poteto/noodle
   - 스킬 기반 다중 에이전트 오케스트레이션. Go로 만들었다. 주방 비유를 그대로 쓴다 — 스케줄러(헤드 셰프)가 `.noodle/mise.json`(백로그·활성 에이전트·이력·등록 스킬)을 읽어 `.noodle/orders-next.json`에 주문을 쓰고, 루프가 주문을 승격해 격리된 워크트리에서 에이전트 세션을 띄운다. 에이전트는 스킬 하나를 지시서로 받고, 끝나면 워크트리가 main으로 머지된다.
   - 최소 루프는 "스케줄 → 실행"이고, 품질 리뷰·회고 같은 단계는 그 단계용 스킬을 써서 붙인다. 스킬 frontmatter에 `schedule` 값을 넣으면 자율 실행 대상이 되고, 없으면 평소처럼 직접 부른다.
@@ -173,7 +177,11 @@ status: unread
 
 ## 내 생각 / 메모
 
-<!-- 읽고 나서 정리: 우리 저장소에서 '린트 규칙으로 승격할 교정' 후보 찾기, AGENTS.md가 비대해진 부분 줄이기, 작은 프로젝트에 feature map이나 상태도만 먼저 얹어 보기 -->
+- **기존 에이전트·스킬(`superpowers` 등)과 겹치는 부분**: `noodle`은 워크트리 병렬 실행, `brainmaxxing`은 서브에이전트·자동 메모리를 노리는 구조라 요즘 코딩 에이전트가 기본으로 주는 기능과 겹친다. 그래서 지금 따로 설치할 메리트는 크지 않다고 본다. `how`도 처음 보는 대규모 레포를 훑을 때 쓰는 도구라, 구조를 이미 아는 개인 프로젝트에서는 쓸 일이 드물 것 같다.
+- **전체 설치보다 선별 도입**: `pstack` 59개(그중 `principle-*` 24개)를 통째로 넣으면 스킬 이름과 설명이 매 턴 컨텍스트에 올라와 비대해지고, 이미 쓰는 `superpowers`의 TDD·플래닝·리뷰 흐름과 `poteto-mode`·`tdd`·`swarm` 같은 단계가 부딪힐 수 있다. 필요한 스킬만 떼어 쓰는 편이 낫다.
+- **1순위 후보는 `create-verification-skill` 하나**: `superpowers`에 없는 "내 앱 전용 조작 CLI와 `features/` feature map"을 만들어 주는 쪽이라 중복이 가장 적고 체감이 클 것 같다. 개인 웹앱에 먼저 얹어 "고치고 브라우저로 직접 확인" 루프를 한 번 돌려 보려 한다.
+- **`maintain-verification-skill` 운영 방식**: `disable-model-invocation`을 `false`로 열어 두면 작은 수정에도 전체 감사가 돌아 무거워진다. 평소에는 `AGENTS.md`에 "기능이나 UI를 고치면 해당 `features/*.md`만 같이 갱신" 한 줄을 두고, 큰 개편 뒤에만 직접 `/maintain-verification-skill`을 돌리는 쪽이 현실적이다.
+- **`unslop`·`no-comments`는 `AGENTS.md` 몇 줄로 충분**: `unslop`의 33개 규칙은 영어 단어와 문법 기준이라 한국어 문서에는 그대로 맞지 않는다. "볼드·이모지 남발 금지, 과장된 결론 금지, 문장 짧게"처럼 핵심 원칙 몇 줄만 한국어에 맞게 옮겨 쓰면 된다. `no-comments`의 "주석 99% 금지"는 에이전트끼리 하루 수백 개 PR을 머지하는 환경의 규칙이라 일반 프로젝트엔 과하다. "임시방편을 정당화하는 변명 주석은 남기지 말고, 제약은 타입·린트로 옮긴다" 정도만 넣는 게 깔끔하다.
 
 ## 출처
 
@@ -183,6 +191,8 @@ status: unread
 - 예시 저장소: https://github.com/poteto/verification-skill-example — 가상 앱 Atlas용 검증 스킬과 feature map. 공개 저장소(HTTP 200)로 확인했고, 본문의 feature map 구현 설명(`SKILL.md` 구조, `references/features/` 아래 `README.md`와 기능별 파일, 네 개의 H2)은 이 저장소 파일을 직접 열어 정리했다.
 - 즉 영상에는 feature map이 개념으로만 나오고, **폴더 구조·파일 포맷·`/create-verification-skill`·`/maintain-verification-skill` 자동화·"materialized memory"라는 표현**은 poteto의 pstack 가이드와 예시 저장소에서 가져온 내용이다.
 - pstack 스킬 목록·설명·설치 방법: https://github.com/cursor/plugins/tree/main/pstack (스킬 폴더: https://github.com/cursor/plugins/tree/main/pstack/skills) — 2026-11-28에 `README.md`, `plugin.json`, 주요 `SKILL.md`를 직접 열어 확인했다. 스킬 59개는 `pstack/skills` 디렉터리 항목 수 기준이고, 24개는 `principle-*` 원칙 스킬이다.
+- 각 스킬의 `SKILL.md` frontmatter(`disable-model-invocation`), `unslop`의 33개 규칙, `statechart`의 TLA+·TLC 실행 절차, `maintain-verification-skill`의 결과 구분(clean/changed/blocked)은 원문 파일에서 직접 확인했다. `poteto/how` 140줄과 `pstack/skills/how` 21줄도 파일 줄 수를 센 값이다.
+- 저장소 생성일은 GitHub API `GET /repos/poteto/{noodle}` 같은 엔드포인트의 `created_at`으로 받아 확인했다(2026-11-28).
 - `poteto/how`: https://github.com/poteto/how — README와 `skills/how/SKILL.md` 기준.
 - `poteto/noodle`: https://github.com/poteto/noodle — README와 `INSTALL.md` 기준, 문서 https://noodle-run.github.io/noodle/.
 - `poteto/brainmaxxing`: https://github.com/poteto/brainmaxxing — README 기준(스킬 6개·원칙 16개, Claude Code용).
