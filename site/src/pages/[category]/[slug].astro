@@ -18,7 +18,10 @@ interface Props {
 const { note } = Astro.props;
 const entry = await getEntry('notes', note.id);
 if (!entry) throw new Error(`노트를 찾지 못했습니다: ${note.id}`);
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
+
+/** 본문 h2만 목차에 올린다 — 모바일에서 길어지지 않게 h3는 뺀다. 빈 제목도 뺀다. */
+const toc = headings.filter((heading) => heading.depth === 2 && heading.text.trim().length > 0);
 
 const listHref = searchHref({ category: note.category });
 const description = note.source ? `${note.title} — ${note.source}` : note.title;
@@ -116,6 +119,23 @@ const description = note.source ? `${note.title} — ${note.source}` : note.titl
       <a class="button" href={listHref}>목록으로</a>
     </div>
   </header>
+
+  {
+    toc.length > 1 && (
+      <nav class="note-toc" aria-label="목차">
+        <p class="note-toc__label">목차</p>
+        <ol class="note-toc__list">
+          {toc.map((heading) => (
+            <li class="note-toc__item">
+              <a class="note-toc__link" href={`#${heading.slug}`}>
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )
+  }
 
   <article class="prose">
     <Content />

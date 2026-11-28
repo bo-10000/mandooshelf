@@ -1146,6 +1146,78 @@ p {
   height: 13px;
 }
 
+/* --------------------------------- 목차 --------------------------------- */
+
+.note-toc {
+  margin-top: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.note-toc__label {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.note-toc__list {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: toc;
+}
+
+.note-toc__item {
+  counter-increment: toc;
+  min-width: 0;
+}
+
+.note-toc__link {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 4px 7px;
+  margin-inline: -7px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--fg-1);
+  transition: background 0.14s ease, color 0.14s ease;
+}
+
+.note-toc__link::before {
+  content: counter(toc);
+  flex: none;
+  min-width: 1.1em;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted);
+  text-align: right;
+}
+
+.note-toc__link:hover {
+  background: var(--surface-3);
+  color: var(--fg);
+}
+
+.note-toc__link:hover::before {
+  color: var(--accent);
+}
+
+/* 넓은 화면에서는 목차를 두 줄로 나눠 짧게 보이게 한다. */
+@media (min-width: 640px) {
+  .note-toc__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-4);
+  }
+}
+
 /* -------------------------------- 본문(prose) ------------------------------- */
 
 .prose {
@@ -1164,6 +1236,11 @@ p {
 .prose > h3:last-child,
 .prose > h4:last-child {
   display: none;
+}
+
+/* 상단에 붙어 있는 헤더(56px)에 제목이 가리지 않게 이동 위치를 띄운다. */
+.prose :is(h2, h3, h4) {
+  scroll-margin-top: 76px;
 }
 
 .prose h2 {
@@ -1386,5 +1463,11 @@ html.dark .astro-code span {
   }
   .prose {
     font-size: 15px;
+  }
+  .note-toc {
+    padding: var(--space-4);
+  }
+  .note-toc__link {
+    font-size: 13px;
   }
 }
