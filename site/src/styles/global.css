@@ -387,6 +387,8 @@ p {
   overflow-y: hidden;
   padding-bottom: 4px;
   scrollbar-width: thin;
+  /* 처음 최근 날짜로 맞출 때 왼쪽에서 오른쪽으로 흘러가듯 움직이지 않게 한다. */
+  scroll-behavior: auto;
 }
 
 .calendar__inner {
@@ -488,6 +490,158 @@ p {
   outline: 1.5px solid var(--accent);
   outline-offset: 1px;
   transform: scale(1.12);
+}
+
+/* 날짜를 누르면 뜨는 읽은 글 — 모바일은 바텀시트, 넓은 화면은 가운데 모달 */
+.calendar-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.calendar-sheet[hidden] {
+  display: none;
+}
+
+.calendar-sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 12, 18, 0.38);
+  animation: calendar-fade 0.16s ease-out;
+}
+
+.calendar-sheet__panel {
+  position: relative;
+  width: 100%;
+  max-height: 70vh;
+  overflow-y: auto;
+  /* iOS 홈 인디케이터 영역만큼 아래를 더 띄운다. */
+  padding: 8px var(--space-5) calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+  border-radius: 16px 16px 0 0;
+  background: var(--surface);
+  box-shadow: 0 -10px 32px -16px rgba(18, 18, 24, 0.4);
+  animation: calendar-sheet-up 0.18s ease-out;
+  -webkit-overflow-scrolling: touch;
+}
+
+.calendar-sheet__handle {
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: 2px auto var(--space-4);
+  border-radius: 999px;
+  background: var(--line-strong);
+}
+
+.calendar-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.calendar-sheet__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-sheet__close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.calendar-sheet__close:hover {
+  background: var(--surface-3);
+  color: var(--fg);
+}
+
+.calendar-sheet__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.calendar-sheet__item + .calendar-sheet__item {
+  border-top: 1px solid var(--line);
+}
+
+/* 손가락으로 누르기 편하게 줄 하나를 통째로 링크로 둔다. */
+.calendar-sheet__link {
+  display: block;
+  padding: 14px 2px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--fg-1);
+  text-decoration: none;
+}
+
+.calendar-sheet__link:hover {
+  color: var(--accent);
+}
+
+.calendar-sheet__empty {
+  padding: var(--space-5) 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+@media (min-width: 768px) {
+  .calendar-sheet {
+    align-items: center;
+    padding: var(--space-5);
+  }
+
+  .calendar-sheet__panel {
+    width: min(420px, 100%);
+    max-height: min(70vh, 520px);
+    padding-top: var(--space-5);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lift);
+    animation: calendar-modal-in 0.16s ease-out;
+  }
+
+  .calendar-sheet__handle {
+    display: none;
+  }
+}
+
+@keyframes calendar-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes calendar-sheet-up {
+  from {
+    transform: translateY(14%);
+    opacity: 0.6;
+  }
+}
+
+@keyframes calendar-modal-in {
+  from {
+    transform: translateY(6px);
+    opacity: 0;
+  }
 }
 
 /* ------------------------------- 노트 카드 ------------------------------- */

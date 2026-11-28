@@ -106,8 +106,9 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
                     tabindex="-1"
                     class={`calendar__cell calendar__cell--l${day.level}`}
                     data-date={day.date}
-                    data-titles={JSON.stringify(day.titles)}
-                    title={`${day.date} · ${day.count > 0 ? `${day.count}편 읽음` : '읽은 글 없음'}`}
+                    data-notes={day.count > 0 ? JSON.stringify(day.notes) : undefined}
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
                     aria-label={`${day.date} · ${day.count > 0 ? `${day.count}편 읽음` : '읽은 글 없음'}`}
                   >
                     {day.count > 0 && <span class="calendar__dumpling" aria-hidden="true">🥟</span>}
@@ -119,6 +120,31 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
         </div>
       </div>
     </div>
+
+    <div class="calendar-sheet" data-calendar-sheet hidden>
+      <div class="calendar-sheet__backdrop" data-calendar-sheet-close></div>
+      <div
+        class="calendar-sheet__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="calendar-sheet-title"
+        data-calendar-sheet-panel
+      >
+        <span class="calendar-sheet__handle" aria-hidden="true"></span>
+        <div class="calendar-sheet__head">
+          <h3 class="calendar-sheet__title" id="calendar-sheet-title" data-calendar-sheet-title></h3>
+          <button
+            type="button"
+            class="calendar-sheet__close"
+            aria-label="닫기"
+            data-calendar-sheet-close
+          >
+            ×
+          </button>
+        </div>
+        <ul class="calendar-sheet__list" data-calendar-sheet-list></ul>
+      </div>
+    </div>
   </section>
 </BaseLayout>
 
@@ -126,10 +152,92 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
   const grid = document.querySelector<HTMLElement>('[data-calendar]');
   const scroller = grid?.closest<HTMLElement>('.calendar__scroll');
 
-  // 좁은 화면에서는 최근 날짜가 먼저 보이도록 오른쪽 끝으로 맞춰 둔다.
-  if (grid && scroller && scroller.scrollWidth > scroller.clientWidth) {
-    scroller.scrollLeft = scroller.scrollWidth;
+  // 좁은 화면에서는 처음 열 때 최근 날짜(오른쪽 끝)가 보이게 맞춘다.
+  // iOS Safari는 첫 레이아웃·웹폰트가 끝나기 전에 넣은 scrollLeft를 0으로 되돌리고,
+  // bfcache로 돌아올 때도 위치를 복원하므로 여러 시점에 다시 맞춘다.
+  if (scroller) {
+    let userMoved = false;
+    const markMoved = () => {
+      userMoved = true;
+    };
+    (['pointerdown', 'touchstart', 'wheel', 'keydown'] as const).forEach((type) => {
+      scroller.addEventListener(type, markMoved, { passive: true });
+    });
+
+    const scrollCalendarToLatest = () => {
+      if (userMoved) return;
+      // scroll-behavior: auto 라서 애니메이션 없이 바로 오른쪽 끝으로 간다.
+      scroller.scrollLeft = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+    };
+
+    const pinCalendar = () => {
+      requestAnimationFrame(() => {
+        scrollCalendarToLatest();
+        // 레이아웃이 한 번 더 바뀌는 브라우저(iOS 주소창·폰트)를 위해 한 프레임 더.
+        requestAnimationFrame(scrollCalendarToLatest);
+      });
+    };
+
+    pinCalendar();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', pinCalendar);
+    }
+    window.addEventListener('load', pinCalendar);
+    window.addEventListener('pageshow', pinCalendar);
+    document.fonts?.ready.then(pinCalendar);
+    window.setTimeout(pinCalendar, 300);
+    window.setTimeout(pinCalendar, 1000);
   }
+
+  // 날짜를 누르면 그날 읽은 글이 뜬다. 모바일은 바텀시트, 넓은 화면은 가운데 모달.
+  const sheet = document.querySelector<HTMLElement>('[data-calendar-sheet]');
+  const sheetTitle = sheet?.querySelector<HTMLElement>('[data-calendar-sheet-title]');
+  const sheetList = sheet?.querySelector<HTMLElement>('[data-calendar-sheet-list]');
+  const sheetClose = sheet?.querySelector<HTMLButtonElement>('.calendar-sheet__close');
+  let activeCell: HTMLElement | null = null;
+
+  const formatDay = (iso: string) => iso.replace(/-/g, '.');
+
+  const closeSheet = () => {
+    if (!sheet || sheet.hidden) return;
+    sheet.hidden = true;
+    activeCell?.classList.remove('is-active');
+    activeCell?.setAttribute('aria-expanded', 'false');
+    activeCell?.focus({ preventScroll: true });
+    activeCell = null;
+  };
+
+  const openSheet = (cell: HTMLElement) => {
+    if (!sheet || !sheetTitle || !sheetList || !cell.dataset.date) return;
+    const dayNotes = JSON.parse(cell.dataset.notes || '[]') as { title: string; href: string }[];
+
+    sheetTitle.textContent = `${formatDay(cell.dataset.date)} · ${
+      dayNotes.length > 0 ? `${dayNotes.length}편 읽음` : '읽은 글 없음'
+    }`;
+    sheetList.replaceChildren();
+
+    if (dayNotes.length === 0) {
+      const empty = document.createElement('li');
+      empty.className = 'calendar-sheet__empty';
+      empty.textContent = '그날은 읽은 글이 없어요.';
+      sheetList.append(empty);
+    } else {
+      dayNotes.forEach((note) => {
+        const item = document.createElement('li');
+        item.className = 'calendar-sheet__item';
+        const link = document.createElement('a');
+        link.className = 'calendar-sheet__link';
+        link.href = note.href;
+        link.textContent = note.title;
+        item.append(link);
+        sheetList.append(item);
+      });
+    }
+
+    sheet.hidden = false;
+    cell.setAttribute('aria-expanded', 'true');
+    sheetClose?.focus({ preventScroll: true });
+  };
 
   if (grid) {
     grid.addEventListener('click', (event) => {
@@ -137,8 +245,25 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
       const cell = target?.closest<HTMLElement>('[data-date]');
       if (!cell) return;
 
+      // 같은 칸을 다시 누르면 닫는다.
+      if (cell === activeCell) {
+        closeSheet();
+        return;
+      }
+
       grid.querySelectorAll('.is-active').forEach((element) => element.classList.remove('is-active'));
+      activeCell?.setAttribute('aria-expanded', 'false');
       cell.classList.add('is-active');
+      activeCell = cell;
+      openSheet(cell);
     });
   }
+
+  sheet?.querySelectorAll('[data-calendar-sheet-close]').forEach((element) => {
+    element.addEventListener('click', closeSheet);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && sheet && !sheet.hidden) closeSheet();
+  });
 </script>

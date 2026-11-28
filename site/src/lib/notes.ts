@@ -315,6 +315,12 @@ export function sortByRead(notes: Note[], limit?: number): Note[] {
 
 export type CalendarLevel = 0 | 1 | 2 | 3;
 
+export interface CalendarNoteLink {
+  title: string;
+  /** 글 상세 페이지 링크 (site/base 포함) */
+  href: string;
+}
+
 export interface CalendarDay {
   /** YYYY-MM-DD (KST 기준 날짜) */
   date: string;
@@ -322,7 +328,8 @@ export interface CalendarDay {
   level: CalendarLevel;
   /** 오늘 이후라 아직 채울 수 없는 칸 */
   future: boolean;
-  titles: string[];
+  /** 그날 읽은 글들 — 칸을 누르면 뜨는 목록에 쓴다. */
+  notes: CalendarNoteLink[];
 }
 
 export interface CalendarWeek {
@@ -397,17 +404,17 @@ export function readCalendar(notes: Note[], weekCount = 26): ReadCalendar {
       const date = new Date(firstSunday.getTime() + (w * 7 + d) * DAY_MS);
       const key = dayKey(date);
       const future = date.getTime() > today.getTime();
-      const titles = (byDay.get(key) ?? []).map((note) => note.title);
+      const dayNotes = (byDay.get(key) ?? []).map((note) => ({ title: note.title, href: note.href }));
       if (!future) {
-        total += titles.length;
-        if (titles.length > 0) activeDays += 1;
+        total += dayNotes.length;
+        if (dayNotes.length > 0) activeDays += 1;
       }
       days.push({
         date: key,
-        count: titles.length,
-        level: Math.min(titles.length, 3) as CalendarLevel,
+        count: dayNotes.length,
+        level: Math.min(dayNotes.length, 3) as CalendarLevel,
         future,
-        titles,
+        notes: dayNotes,
       });
     }
     weeks.push({ days });
