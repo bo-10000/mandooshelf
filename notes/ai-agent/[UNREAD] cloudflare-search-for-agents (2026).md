@@ -3,7 +3,7 @@ title: "에이전트엔 크롤링 대신 검색을: Cloudflare Search for Agents
 published_at: 2026-11-25
 source: "Cloudflare Blog"
 url: "https://blog.cloudflare.com/search-for-agents/"
-tags: [ai-agent, ai-search, cloudflare, agent-readiness, discoverability, http-query, rfc-10008, markdown-for-agents]
+tags: [ai-agent, ai-search, agent-readiness]
 status: unread
 ---
 

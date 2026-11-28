@@ -3,7 +3,7 @@ title: "다 슬롭이다, 내 코드만 빼고: 에이전트를 믿게 만드는
 published_at: 2026-11-14
 source: "AI Engineer"
 url: "https://www.youtube.com/watch?v=O_zcc6Xl12g"
-tags: [ai-agent, coding-agents, agents-md, lint-rules, codebase-design, runtime-verification, formal-verification, tla-plus, lean, dune, grok-bot, electron, software-factory, pstack, agent-skills]
+tags: [coding-agents, verification, lint-rules, pstack]
 status: unread
 ---
 

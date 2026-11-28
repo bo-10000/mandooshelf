@@ -3,7 +3,7 @@ title: "목적마다, 상품마다 늘던 모델을 하나로: 금융 도메인�
 published_at: 2026-11-23
 source: "TOSS Tech"
 url: "https://toss.tech/article/multi-task-learning-in-finance"
-tags: [recommendation, multi-task-learning, targeting, ple, marketing, cold-start]
+tags: [multi-task-learning, targeting, cold-start]
 status: unread
 ---
 

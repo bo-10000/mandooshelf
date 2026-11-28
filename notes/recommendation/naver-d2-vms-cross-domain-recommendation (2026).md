@@ -3,7 +3,7 @@ title: "흩어진 행동을 연결하다: 네이버 전 지면의 사용자 행�
 published_at: 2026-11-16
 source: "NAVER D2"
 url: "https://d2.naver.com/helloworld/1599966"
-tags: [recommendation, retrieval, ranking, knowledge-distillation, serving, gpu, naver-engineering-day]
+tags: [retrieval, ranking, serving]
 status: read
 read_at: 2026-11-21
 ---

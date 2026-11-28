@@ -3,7 +3,7 @@ title: "아마추어 천문학자가 Codex·Astra로 외계행성 후보를 찾�
 published_at: 2026-11-24
 source: "OpenAI · Science"
 url: "https://openai.com/index/searching-for-distant-planets-with-astra"
-tags: [astra, codex, ai-for-science, astronomy, exoplanet, agent, citizen-science]
+tags: [ai-for-science, coding-agents, astronomy]
 status: read
 read_at: 2026-11-27
 ---

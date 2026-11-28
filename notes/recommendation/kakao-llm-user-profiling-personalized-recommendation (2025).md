@@ -3,7 +3,7 @@ title: "LLM을 활용한 유저 프로파일링과 개인화 추천 (if(kakao)25
 published_at: 2025-09
 source: "kakao tech · if(kakao)25"
 url: "https://piletech.kr/talks/209"
-tags: [recommendation, llm, user-profiling, personalization, cold-start, contextual-bandit]
+tags: [llm, user-profiling, personalization]
 status: read
 read_at: 2026-11-22
 ---

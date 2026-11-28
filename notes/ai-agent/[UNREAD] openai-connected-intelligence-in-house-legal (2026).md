@@ -3,7 +3,7 @@ title: "판단 전에 사실을 찾지 않게: 사내 법무팀을 위한 연결
 published_at: 2026-11-23
 source: "OpenAI for Business"
 url: "https://openai.com/business/learn/connected-intelligence-for-in-house-legal"
-tags: [ai-agent, llm, legal, legal-ops, chatgpt-enterprise, workflow, openai]
+tags: [ai-agent, legal-ops, workflow]
 status: unread
 ---
 
