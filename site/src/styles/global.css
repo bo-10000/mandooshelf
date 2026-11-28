@@ -365,11 +365,21 @@ p {
 /* ------------------------------- 읽기 달력 ------------------------------- */
 
 .calendar {
+  --cell: 12px;
+  --cell-gap: 3px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
   padding: var(--space-5);
   box-shadow: var(--shadow);
+}
+
+/* 넓은 화면에서는 칸을 키워 카드 폭에 맞춘다. */
+@media (min-width: 760px) {
+  .calendar {
+    --cell: 18px;
+    --cell-gap: 4px;
+  }
 }
 
 .calendar__summary {
@@ -407,8 +417,8 @@ p {
 
 .calendar__months {
   display: grid;
-  grid-template-columns: repeat(var(--weeks), 12px);
-  gap: 3px;
+  grid-template-columns: repeat(var(--weeks), var(--cell));
+  gap: var(--cell-gap);
   height: 13px;
   margin-bottom: 5px;
 }
@@ -424,14 +434,14 @@ p {
 .calendar__grid {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 12px;
-  grid-template-rows: repeat(7, 12px);
-  gap: 3px;
+  grid-auto-columns: var(--cell);
+  grid-template-rows: repeat(7, var(--cell));
+  gap: var(--cell-gap);
 }
 
 .calendar__cell {
-  width: 12px;
-  height: 12px;
+  width: var(--cell);
+  height: var(--cell);
   padding: 0;
   border: 0;
   border-radius: 2.5px;
