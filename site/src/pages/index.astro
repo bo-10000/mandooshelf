@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import NoteList from '../components/NoteList.astro';
-import { getAllNotes, getCategories, searchHref, sortByRead, totalSummary } from '../lib/notes';
+import { getAllNotes, getCategories, readCalendar, searchHref, sortByRead, totalSummary } from '../lib/notes';
 
 const notes = await getAllNotes();
 const categories = await getCategories();
@@ -9,6 +9,8 @@ const summary = totalSummary(notes);
 const unread = notes.filter((note) => !note.isRead);
 const unreadPreview = unread.slice(0, 6);
 const recentRead = sortByRead(notes, 4);
+const calendar = readCalendar(notes);
+const calendarDays = calendar.weeks.flatMap((week) => week.days);
 ---
 
 <BaseLayout>
@@ -71,4 +73,85 @@ const recentRead = sortByRead(notes, 4);
     </div>
     <NoteList notes={recentRead} showCategory emptyTitle="읽은 글 없음" />
   </section>
+
+  <section class="section" aria-labelledby="calendar-title">
+    <div class="section__head">
+      <h2 class="section__title" id="calendar-title">읽기 기록</h2>
+      <span class="section__more">{calendar.windowLabel}</span>
+    </div>
+    <div class="calendar">
+      <p class="summary calendar__summary">
+        <span><strong>{calendar.activeDays}</strong>일 읽음</span>
+        <span><strong>{calendar.total}</strong>편</span>
+        {calendar.lastRead && <span>마지막 {calendar.lastRead}</span>}
+      </p>
+      <div class="calendar__scroll">
+        <div class="calendar__inner" style={`--weeks:${calendar.weeks.length}`}>
+          <div class="calendar__months" aria-hidden="true">
+            {
+              calendar.months.map((month) => (
+                <span class="calendar__month" style={`grid-column: ${month.index + 1} / span ${month.span}`}>
+                  {month.label}
+                </span>
+              ))
+            }
+          </div>
+          <div
+            class="calendar__grid"
+            role="group"
+            aria-label={`${calendar.windowLabel} 동안 ${calendar.activeDays}일에 ${calendar.total}편 읽음`}
+            data-calendar
+          >
+            {
+              calendarDays.map((day) =>
+                day.future ? (
+                  <span class="calendar__cell calendar__cell--future" aria-hidden="true" />
+                ) : (
+                  <button
+                    type="button"
+                    tabindex="-1"
+                    class={`calendar__cell calendar__cell--l${day.level}`}
+                    data-date={day.date}
+                    data-label={day.label}
+                    data-titles={JSON.stringify(day.titles)}
+                    title={`${day.label} · ${day.count > 0 ? `${day.count}편 읽음` : '읽은 글 없음'}`}
+                    aria-label={`${day.label} · ${day.count > 0 ? `${day.count}편 읽음` : '읽은 글 없음'}`}
+                  />
+                ),
+              )
+            }
+          </div>
+        </div>
+      </div>
+      <p class="calendar__caption" data-calendar-caption aria-live="polite">칸을 누르면 그날 읽은 글을 봅니다.</p>
+    </div>
+  </section>
 </BaseLayout>
+
+<script>
+  const grid = document.querySelector<HTMLElement>('[data-calendar]');
+  const caption = document.querySelector<HTMLElement>('[data-calendar-caption]');
+
+  if (grid && caption) {
+    grid.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement | null;
+      const cell = target?.closest<HTMLElement>('[data-date]');
+      if (!cell) return;
+
+      grid.querySelectorAll('.is-active').forEach((element) => element.classList.remove('is-active'));
+      cell.classList.add('is-active');
+
+      let titles: string[] = [];
+      try {
+        titles = JSON.parse(cell.dataset.titles ?? '[]');
+      } catch {
+        titles = [];
+      }
+
+      const label = cell.dataset.label ?? '';
+      caption.textContent = titles.length
+        ? `${label} · ${titles.length}편 — ${titles.join(' · ')}`
+        : `${label} · 읽은 글 없음`;
+    });
+  }
+</script>

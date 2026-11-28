@@ -19,6 +19,11 @@
   --accent-fg: #ffffff;
   --unread: #b4401f;
   --unread-soft: #fdefe9;
+  /* 읽기 달력 잔디 — 0(비어 있음)부터 3편 이상까지 */
+  --grass-0: #eaeae7;
+  --grass-1: #cdeccf;
+  --grass-2: #7fce9a;
+  --grass-3: #2e9e62;
   --shadow: 0 1px 2px rgba(18, 18, 24, 0.04), 0 6px 20px -12px rgba(18, 18, 24, 0.18);
   --shadow-lift: 0 2px 4px rgba(18, 18, 24, 0.05), 0 14px 28px -16px rgba(18, 18, 24, 0.24);
   --radius: 14px;
@@ -59,6 +64,10 @@ html.dark {
   --accent-fg: #0b0c10;
   --unread: #ff9f78;
   --unread-soft: #2a1a14;
+  --grass-0: #20212a;
+  --grass-1: #17452c;
+  --grass-2: #1f7246;
+  --grass-3: #46b97a;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -16px rgba(0, 0, 0, 0.8);
   --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.45), 0 18px 32px -18px rgba(0, 0, 0, 0.9);
 }
@@ -351,6 +360,100 @@ p {
 
 .summary + .section {
   margin-top: var(--space-8);
+}
+
+/* ------------------------------- 읽기 달력 ------------------------------- */
+
+.calendar {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: var(--space-5);
+  box-shadow: var(--shadow);
+}
+
+.calendar__summary {
+  margin-bottom: var(--space-4);
+}
+
+/* 모바일에서는 이 안에서만 가로로 스크롤되어 페이지 폭은 늘지 않는다. */
+.calendar__scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.calendar__inner {
+  width: max-content;
+}
+
+.calendar__months {
+  display: grid;
+  grid-template-columns: repeat(var(--weeks), 12px);
+  gap: 3px;
+  height: 13px;
+  margin-bottom: 5px;
+}
+
+.calendar__month {
+  font-size: 10.5px;
+  line-height: 1;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.calendar__grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 12px;
+  grid-template-rows: repeat(7, 12px);
+  gap: 3px;
+}
+
+.calendar__cell {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 2.5px;
+  background: var(--grass-0);
+  appearance: none;
+  cursor: pointer;
+}
+
+.calendar__cell--l1 {
+  background: var(--grass-1);
+}
+
+.calendar__cell--l2 {
+  background: var(--grass-2);
+}
+
+.calendar__cell--l3 {
+  background: var(--grass-3);
+}
+
+.calendar__cell--future {
+  background: transparent;
+  cursor: default;
+}
+
+.calendar__cell:hover {
+  box-shadow: inset 0 0 0 1px var(--fg-1);
+}
+
+.calendar__cell.is-active {
+  box-shadow: 0 0 0 1.5px var(--fg);
+}
+
+.calendar__caption {
+  margin-top: var(--space-3);
+  min-height: 1.6em;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
 }
 
 /* ------------------------------- 노트 카드 ------------------------------- */
@@ -1620,6 +1723,9 @@ html.dark .astro-code span {
   }
   .summary + .section {
     margin-top: var(--space-8);
+  }
+  .calendar {
+    padding: var(--space-4);
   }
   /* iOS Safari는 폰트가 16px 미만인 입력창에 포커스하면 화면을 확대한다. */
   .filter__search {

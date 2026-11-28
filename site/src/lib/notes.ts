@@ -310,3 +310,135 @@ export function sortByRead(notes: Note[], limit?: number): Note[] {
   const read = notes.filter((note) => note.isRead).sort(sortByReadDesc);
   return typeof limit === 'number' ? read.slice(0, limit) : read;
 }
+
+/* -------------------------------- 읽기 달력 -------------------------------- */
+
+export type CalendarLevel = 0 | 1 | 2 | 3;
+
+export interface CalendarDay {
+  /** YYYY-MM-DD (KST 기준 날짜) */
+  date: string;
+  /** 11.28 */
+  label: string;
+  count: number;
+  level: CalendarLevel;
+  /** 오늘 이후라 아직 채울 수 없는 칸 */
+  future: boolean;
+  titles: string[];
+}
+
+export interface CalendarWeek {
+  days: CalendarDay[];
+}
+
+export interface CalendarMonth {
+  /** 0부터 시작하는 주 열 인덱스 */
+  index: number;
+  /** 그 달 이름이 덮는 주 열 수 */
+  span: number;
+  /** 11월 */
+  label: string;
+}
+
+export interface ReadCalendar {
+  weeks: CalendarWeek[];
+  months: CalendarMonth[];
+  /** 기간 안에서 읽은 편수 */
+  total: number;
+  /** 기간 안에서 읽은 날 수 */
+  activeDays: number;
+  /** 가장 최근에 읽은 날 (11.28), 없으면 null */
+  lastRead: string | null;
+  windowLabel: string;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** KST 기준 오늘을 UTC 자정짜리 Date 로 돌려준다. (날짜만 다룬다) */
+function kstToday(): Date {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const pick = (type: string) => Number(parts.find((part) => part.type === type)?.value ?? 0);
+  return new Date(Date.UTC(pick('year'), pick('month') - 1, pick('day')));
+}
+
+function dayKey(date: Date): string {
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  return `${date.getUTCFullYear()}-${month}-${day}`;
+}
+
+/**
+ * 홈 하단 잔디 히트맵용 읽기 달력.
+ * `read_at` 이 있는 읽은 글을 날짜별로 묶어, 최근 `weekCount`주를 일요일 시작 7행으로 놓는다.
+ */
+export function readCalendar(notes: Note[], weekCount = 26): ReadCalendar {
+  const byDay = new Map<string, Note[]>();
+  for (const note of notes) {
+    if (!note.isRead || !note.readAt || note.readAt.iso.length !== 10) continue;
+    const list = byDay.get(note.readAt.iso) ?? [];
+    list.push(note);
+    byDay.set(note.readAt.iso, list);
+  }
+
+  const today = kstToday();
+  const lastSunday = new Date(today.getTime() - today.getUTCDay() * DAY_MS);
+  const firstSunday = new Date(lastSunday.getTime() - (weekCount - 1) * 7 * DAY_MS);
+
+  const weeks: CalendarWeek[] = [];
+  let total = 0;
+  let activeDays = 0;
+
+  for (let w = 0; w < weekCount; w += 1) {
+    const days: CalendarDay[] = [];
+    for (let d = 0; d < 7; d += 1) {
+      const date = new Date(firstSunday.getTime() + (w * 7 + d) * DAY_MS);
+      const key = dayKey(date);
+      const future = date.getTime() > today.getTime();
+      const titles = (byDay.get(key) ?? []).map((note) => note.title);
+      if (!future) {
+        total += titles.length;
+        if (titles.length > 0) activeDays += 1;
+      }
+      days.push({
+        date: key,
+        label: `${date.getUTCMonth() + 1}.${String(date.getUTCDate()).padStart(2, '0')}`,
+        count: titles.length,
+        level: Math.min(titles.length, 3) as CalendarLevel,
+        future,
+        titles,
+      });
+    }
+    weeks.push({ days });
+  }
+
+  // 월 라벨은 그 달 1일이 들어 있는 주에 붙이고, 다음 라벨까지의 주 수를 span 으로 준다.
+  const months: CalendarMonth[] = [];
+  for (let w = 0; w < weekCount; w += 1) {
+    const firstDay = weeks[w]!.days.find((day) => Number(day.date.slice(8)) === 1);
+    if (w !== 0 && !firstDay) continue;
+    const anchor = firstDay ?? weeks[w]!.days[0]!;
+    const label = `${Number(anchor.date.slice(5, 7))}월`;
+    if (months[months.length - 1]?.label === label) continue;
+    months.push({ index: w, span: 1, label });
+  }
+  months.forEach((month, i) => {
+    month.span = (months[i + 1]?.index ?? weekCount) - month.index;
+  });
+
+  const readDates = [...byDay.keys()].sort();
+  const last = readDates[readDates.length - 1];
+
+  return {
+    weeks,
+    months,
+    total,
+    activeDays,
+    lastRead: last ? `${Number(last.slice(5, 7))}.${last.slice(8, 10)}` : null,
+    windowLabel: `최근 ${weekCount}주`,
+  };
+}
