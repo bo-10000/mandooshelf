@@ -583,7 +583,7 @@ p {
   list-style: none;
 }
 
-/* 카드 한 장 = 카테고리 뱃지 + 제목, 아래 한 줄 출처 · 발행일 */
+/* 카드 한 장 = 카테고리 뱃지(제목 위) + 제목, 아래 한 줄 출처 · 발행일 */
 .calendar-sheet__card {
   display: block;
   padding: var(--space-4);
@@ -600,19 +600,21 @@ p {
   transform: translateY(-1px);
 }
 
-.calendar-sheet__card-top {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
+.calendar-sheet__card-cat {
+  display: block;
+  margin-bottom: 6px;
+  line-height: 1;
 }
 
-.calendar-sheet__card-top .badge {
-  flex: none;
+/* 시트 카드에서는 제목 위에 얹히는 작은 알약으로 */
+.calendar-sheet__card .badge--category {
+  font-size: 11px;
+  padding: 2px 7px;
+  line-height: 1.5;
 }
 
 .calendar-sheet__card-title {
-  flex: 1 1 auto;
-  min-width: 0;
+  display: block;
   font-size: 14.5px;
   font-weight: 650;
   line-height: 1.45;

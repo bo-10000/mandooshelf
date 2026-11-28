@@ -236,21 +236,21 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
         link.className = 'calendar-sheet__card';
         link.href = note.href;
 
-        const top = document.createElement('span');
-        top.className = 'calendar-sheet__card-top';
-
+        // 카테고리 뱃지는 제목 위 자기 줄에 작은 알약으로.
         if (note.categoryTitle) {
+          const categoryRow = document.createElement('span');
+          categoryRow.className = 'calendar-sheet__card-cat';
           const category = document.createElement('span');
           category.className = 'badge badge--category';
           category.textContent = note.categoryTitle;
-          top.append(category);
+          categoryRow.append(category);
+          link.append(categoryRow);
         }
 
         const title = document.createElement('span');
         title.className = 'calendar-sheet__card-title';
         title.textContent = note.title;
-        top.append(title);
-        link.append(top);
+        link.append(title);
 
         const metaParts = [note.source, note.date].filter((part): part is string => !!part);
         if (metaParts.length > 0) {
