@@ -65,6 +65,11 @@ status: unread
 - Grok Bot의 코드 리뷰는 이제 **검증 산출물(verification artifacts)** 을 보는 일로 줄었다. 영상, 스크린샷, 다이어그램, 형식 검증 결과.
 - **런타임 검증**: 말이 거창하지만 결국 "에이전트가 코드를 직접 돌리고, 사람이 쓰는 디버깅 도구를 같이 쓰게 하는 것". Chrome DevTools Protocol(CDP)이 그 예다.
   - **feature map**: 사용자 관점에서 앱의 모든 기능을 정리한 일종의 사이트맵. "왼쪽 사이드바에 있는 그거" 같은 요청에서 에이전트가 추측하지 않게 **공유 어휘**를 준다.
+    - **어디에 두나**: 검증 스킬 폴더(`.cursor/skills/verify-<앱>/`) 안. 실행·진단·조작·증거·정리 절차가 담긴 `SKILL.md` 옆의 `references/features/` 아래에 `README.md`(전체 지도이자 목차)와 기능별 짧은 마크다운 파일을 둔다. 예시 앱 Atlas는 로그인·좌측 레일·프롬프트·레이아웃·소스 컨트롤·호스팅 등 영역으로 나뉜 약 30개 파일이다.
+    - **파일 하나에 네 칸**: `Sub-features`(그 기능 안에서 사용자가 할 수 있는 일), `How to get to it (user POV)`(클릭·단축키로 도달하는 경로), `Driving it with <CLI>`(커스텀 CLI 명령과 a11y·DOM 셀렉터, 무엇을 보면 통과인지), `Gotchas`(포커스·플랜·데이터 유무 같은 함정과 확인이 실패한 이유).
+    - **자동 생성·유지**: `/create-verification-skill`이 사람에게 묻기 전에 저장소를 먼저 훑어 앱을 조작할 CLI와 feature map 초안을 만든다. 이후 기능 PR과 같이 고치고, `/maintain-verification-skill`을 하루 한 번 돌려 소스를 다시 읽고 실제 앱을 구동해 드리프트를 잡는다(고칠 게 있으면 PR 하나, 제품 코드는 건드리지 않음).
+    - **토큰 경제**: 코드베이스 전체를 읽히는 대신 작업에 걸린 기능 파일 한두 개만 연다. poteto는 코드베이스(진짜 기억)를 압축한 **materialized memory**라고 부르고, 저장소에 커밋되는 마크다운이라 팀 전체가 같은 기억을 공유한다고 말한다.
+    - 예시 저장소(가상 앱 Atlas·Harbor Labs, 드라이버 스크립트는 의도적으로 생략): https://github.com/poteto/verification-skill-example
   - **커스텀 CLI**: 스킬 안에 CLI·드라이버를 넣어 두면 에이전트가 매번 같은 도구를 재사용한다. 앱을 조작하는 방법을 새로 알아내느라 쓰는 토큰이 줄고, 팀 입장에서는 테스트할 수 있는 자산이 생긴다.
 - **형식 검증(최근 실험)**:
   - **TLA+**: 여러 기기·플랫폼에 걸친 알림 같은 주요 사용자 흐름을 모델 체킹.
@@ -105,4 +110,7 @@ status: unread
 
 - 영상: AI Engineer, "All Code Is Slop (Except Mine) — Lauren Tan, SpaceXSI" (2026-11-14 공개) — https://www.youtube.com/watch?v=O_zcc6Xl12g
 - 발표 페이지(AI Engineer CODE 2026, 2026-11-11): https://ai.engineer/code/2026/talks/lauren-tan
+- pstack 가이드: Lauren Tan(poteto), "The Complete Guide to pstack" 중 검증·출시 장 — https://github.com/cursor/plugins/blob/main/pstack/docs/guide/06-verify-and-ship.md
+- 예시 저장소: https://github.com/poteto/verification-skill-example — 가상 앱 Atlas용 검증 스킬과 feature map. 공개 저장소(HTTP 200)로 확인했고, 본문의 feature map 구현 설명(`SKILL.md` 구조, `references/features/` 아래 `README.md`와 기능별 파일, 네 개의 H2)은 이 저장소 파일을 직접 열어 정리했다.
+- 즉 영상에는 feature map이 개념으로만 나오고, **폴더 구조·파일 포맷·`/create-verification-skill`·`/maintain-verification-skill` 자동화·"materialized memory"라는 표현**은 poteto의 pstack 가이드와 예시 저장소에서 가져온 내용이다.
 - 이 정리는 위 영상의 **전체 스크립트(자동 생성 자막)** 를 바탕으로 했다. 자막 오인식이 일부 있어(Grok Bot이 Grabbot/Grockbot/Grathbot 등으로 표기됨) 고유명사는 발표 페이지 표기를 따랐고, 화면에 띄운 슬라이드 이미지는 옮기지 않았다.
