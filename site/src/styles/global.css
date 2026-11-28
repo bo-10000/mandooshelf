@@ -1146,14 +1146,57 @@ p {
   height: 13px;
 }
 
+/* ------------------------------ 글 한 장의 틀 ------------------------------ */
+
+/* 좁은 화면: 제목 → 목차 → 본문 순서의 한 줄. 넓은 화면: 본문 옆에 목차를 붙인다. */
+.note-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'main'
+    'toc'
+    'prose';
+  align-items: start;
+}
+
+.note-page__main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.note-page > .note-toc {
+  grid-area: toc;
+}
+
+.note-page > .prose {
+  grid-area: prose;
+}
+
+@media (min-width: 1024px) {
+  /* 글 한 장에서만 폭을 넓혀 본문 옆에 목차 자리를 만든다. */
+  .container.container--wide {
+    max-width: 1080px;
+  }
+
+  .note-page {
+    grid-template-columns: minmax(0, 1fr) 232px;
+    grid-template-areas:
+      'main toc'
+      'prose toc';
+    column-gap: 48px;
+  }
+}
+
 /* --------------------------------- 목차 --------------------------------- */
 
+/* 좁은 화면에서는 글 위에 놓이는 상자, 넓은 화면에서는 글 옆에 붙는 사이드바. */
 .note-toc {
   margin-top: var(--space-6);
   padding: var(--space-4) var(--space-5);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--surface-2);
+  min-width: 0;
 }
 
 .note-toc__label {
@@ -1170,35 +1213,39 @@ p {
   margin: 0;
   padding: 0;
   list-style: none;
-  counter-reset: toc;
 }
 
 .note-toc__item {
-  counter-increment: toc;
   min-width: 0;
 }
 
 .note-toc__link {
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
+  display: block;
   padding: 4px 7px;
-  margin-inline: -7px;
   border-radius: 6px;
   font-size: 13.5px;
   line-height: 1.5;
   color: var(--fg-1);
+  overflow-wrap: anywhere;
   transition: background 0.14s ease, color 0.14s ease;
 }
 
-.note-toc__link::before {
-  content: counter(toc);
-  flex: none;
-  min-width: 1.1em;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
+/* 단계가 깊을수록 들여쓰고 작고 흐리게 — 위계만 보이고 눈은 덜 가게. */
+.note-toc__item--d2 .note-toc__link {
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.note-toc__item--d3 .note-toc__link {
+  padding-left: 21px;
+  font-size: 13px;
   color: var(--muted);
-  text-align: right;
+}
+
+.note-toc__item--d4 .note-toc__link {
+  padding-left: 33px;
+  font-size: 12.5px;
+  color: var(--muted);
 }
 
 .note-toc__link:hover {
@@ -1206,15 +1253,31 @@ p {
   color: var(--fg);
 }
 
-.note-toc__link:hover::before {
+.note-toc__link.is-active {
+  background: var(--accent-soft);
   color: var(--accent);
+  font-weight: 650;
 }
 
-/* 넓은 화면에서는 목차를 두 줄로 나눠 짧게 보이게 한다. */
-@media (min-width: 640px) {
-  .note-toc__list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--space-4);
+/* 넓은 화면: 본문 옆에 붙어 따라오는 목차. */
+@media (min-width: 1024px) {
+  .note-toc {
+    position: sticky;
+    top: 76px;
+    align-self: start;
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin-top: 0;
+    padding: 2px 0 0 var(--space-5);
+    border: 0;
+    border-left: 1px solid var(--line);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .note-toc__label {
+    margin-bottom: var(--space-3);
   }
 }
 
@@ -1239,7 +1302,7 @@ p {
 }
 
 /* 상단에 붙어 있는 헤더(56px)에 제목이 가리지 않게 이동 위치를 띄운다. */
-.prose :is(h2, h3, h4) {
+.prose :is(h2, h3, h4, h5, h6) {
   scroll-margin-top: 76px;
 }
 
@@ -1262,6 +1325,13 @@ p {
 .prose h4 {
   margin: 1.6em 0 0.5em;
   font-size: 0.98rem;
+  color: var(--fg);
+}
+
+.prose h5,
+.prose h6 {
+  margin: 1.4em 0 0.45em;
+  font-size: 0.94rem;
   color: var(--fg);
 }
 

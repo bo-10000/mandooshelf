@@ -7,12 +7,15 @@ interface Props {
   description?: string;
   /** og:type */
   type?: 'website' | 'article';
+  /** 넓은 화면에서 본문+사이드바를 함께 놓을 수 있게 폭을 넓힌다. */
+  wide?: boolean;
 }
 
 const {
   title,
   description = '읽은 테크 글과 정리 노트를 모아 둔 아카이브.',
   type = 'website',
+  wide = false,
 } = Astro.props;
 
 const siteName = 'mandooshelf';
@@ -91,7 +94,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://bo-10000.gi
     </header>
 
     <main id="main" class="site-main">
-      <div class="container">
+      <div class:list={['container', wide && 'container--wide']}>
         <slot />
       </div>
     </main>
