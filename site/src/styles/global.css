@@ -19,11 +19,11 @@
   --accent-fg: #ffffff;
   --unread: #b4401f;
   --unread-soft: #fdefe9;
-  /* 읽기 달력 잔디 — 0(비어 있음)부터 3편 이상까지 */
-  --grass-0: #eaeae7;
-  --grass-1: #b9e7c4;
-  --grass-2: #63c882;
-  --grass-3: #2f9e5f;
+  /* 만두키우기 히트맵 — 0(빈 칸)부터 3편 이상까지 차츰 진해진다. */
+  --mandoo-0: #eaeae7;
+  --mandoo-1: #efe4d3;
+  --mandoo-2: #e9cfaa;
+  --mandoo-3: #d5a05f;
   --shadow: 0 1px 2px rgba(18, 18, 24, 0.04), 0 6px 20px -12px rgba(18, 18, 24, 0.18);
   --shadow-lift: 0 2px 4px rgba(18, 18, 24, 0.05), 0 14px 28px -16px rgba(18, 18, 24, 0.24);
   --radius: 14px;
@@ -64,10 +64,10 @@ html.dark {
   --accent-fg: #0b0c10;
   --unread: #ff9f78;
   --unread-soft: #2a1a14;
-  --grass-0: #20212a;
-  --grass-1: #0f4a2b;
-  --grass-2: #177e46;
-  --grass-3: #3fbc74;
+  --mandoo-0: #20212a;
+  --mandoo-1: #262320;
+  --mandoo-2: #352b1c;
+  --mandoo-3: #523d1e;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -16px rgba(0, 0, 0, 0.8);
   --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.45), 0 18px 32px -18px rgba(0, 0, 0, 0.9);
 }
@@ -362,10 +362,10 @@ p {
   margin-top: var(--space-8);
 }
 
-/* ------------------------------- 읽기 달력 ------------------------------- */
+/* ------------------------------ 만두키우기 ------------------------------ */
 
 .calendar {
-  --cell: 12px;
+  --cell: 20px;
   --cell-gap: 3px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -377,30 +377,8 @@ p {
 /* 넓은 화면에서는 칸을 키워 카드 폭에 맞춘다. */
 @media (min-width: 760px) {
   .calendar {
-    --cell: 18px;
-    --cell-gap: 4px;
+    --cell: 22px;
   }
-}
-
-.calendar__summary {
-  margin-bottom: var(--space-4);
-}
-
-.calendar__legend {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: auto;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.calendar__swatch {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  background: var(--grass-0);
 }
 
 /* 모바일에서는 이 안에서만 가로로 스크롤되어 페이지 폭은 늘지 않는다. */
@@ -413,14 +391,16 @@ p {
 
 .calendar__inner {
   width: max-content;
+  min-width: 100%;
 }
 
 .calendar__months {
   display: grid;
   grid-template-columns: repeat(var(--weeks), var(--cell));
+  justify-content: space-between;
   gap: var(--cell-gap);
-  height: 13px;
-  margin-bottom: 5px;
+  height: 14px;
+  margin-bottom: 6px;
 }
 
 .calendar__month {
@@ -436,30 +416,55 @@ p {
   grid-auto-flow: column;
   grid-auto-columns: var(--cell);
   grid-template-rows: repeat(7, var(--cell));
+  justify-content: space-between;
   gap: var(--cell-gap);
 }
 
 .calendar__cell {
+  display: grid;
+  place-items: center;
   width: var(--cell);
   height: var(--cell);
   padding: 0;
   border: 0;
-  border-radius: 2.5px;
-  background: var(--grass-0);
+  border-radius: 5px;
+  background: var(--mandoo-0);
+  font-size: calc(var(--cell) * 0.72);
+  line-height: 1;
   appearance: none;
   cursor: pointer;
 }
 
+.calendar__dumpling {
+  display: block;
+  line-height: 1;
+  /* 이모지 글리프가 줄 상자 위쪽에 치우쳐 보여서 살짝 내린다. */
+  transform: translateY(0.09em);
+}
+
+/* 읽은 날은 만두가 익어 갈수록 진하고 따뜻해진다. */
 .calendar__cell--l1 {
-  background: var(--grass-1);
+  background: var(--mandoo-1);
+}
+
+.calendar__cell--l1 .calendar__dumpling {
+  filter: saturate(0.7) brightness(1.02) contrast(0.98);
 }
 
 .calendar__cell--l2 {
-  background: var(--grass-2);
+  background: var(--mandoo-2);
+}
+
+.calendar__cell--l2 .calendar__dumpling {
+  filter: saturate(1.35) contrast(1.08) brightness(0.95);
 }
 
 .calendar__cell--l3 {
-  background: var(--grass-3);
+  background: var(--mandoo-3);
+}
+
+.calendar__cell--l3 .calendar__dumpling {
+  filter: saturate(1.7) contrast(1.22) brightness(0.88);
 }
 
 .calendar__cell--future {
@@ -478,17 +483,11 @@ p {
 }
 
 .calendar__cell.is-active {
-  outline: 1px solid var(--accent);
-  outline-offset: 0;
-  transform: scale(1.2);
-}
-
-.calendar__caption {
-  margin-top: var(--space-3);
-  min-height: 1.6em;
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--muted);
+  position: relative;
+  z-index: 1;
+  outline: 1.5px solid var(--accent);
+  outline-offset: 1px;
+  transform: scale(1.12);
 }
 
 /* ------------------------------- 노트 카드 ------------------------------- */

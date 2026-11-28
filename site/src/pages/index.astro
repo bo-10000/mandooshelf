@@ -76,23 +76,9 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
 
   <section class="section" aria-labelledby="calendar-title">
     <div class="section__head">
-      <h2 class="section__title" id="calendar-title">읽기 기록</h2>
-      <span class="section__more">{calendar.windowLabel}</span>
+      <h2 class="section__title" id="calendar-title">만두키우기</h2>
     </div>
     <div class="calendar">
-      <p class="summary calendar__summary">
-        <span><strong>{calendar.activeDays}</strong>일 읽음</span>
-        <span><strong>{calendar.total}</strong>편</span>
-        {calendar.lastRead && <span>마지막 {calendar.lastRead}</span>}
-        <span class="calendar__legend" aria-hidden="true">
-          적음
-          <i class="calendar__swatch" />
-          <i class="calendar__swatch calendar__cell--l1" />
-          <i class="calendar__swatch calendar__cell--l2" />
-          <i class="calendar__swatch calendar__cell--l3" />
-          많음
-        </span>
-      </p>
       <div class="calendar__scroll">
         <div class="calendar__inner" style={`--weeks:${calendar.weeks.length}`}>
           <div class="calendar__months" aria-hidden="true">
@@ -123,21 +109,21 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
                     data-titles={JSON.stringify(day.titles)}
                     title={`${day.date} · ${day.count > 0 ? `${day.count}편 읽음` : '읽은 글 없음'}`}
                     aria-label={`${day.date} · ${day.count > 0 ? `${day.count}편 읽음` : '읽은 글 없음'}`}
-                  />
+                  >
+                    {day.count > 0 && <span class="calendar__dumpling" aria-hidden="true">🥟</span>}
+                  </button>
                 ),
               )
             }
           </div>
         </div>
       </div>
-      <p class="calendar__caption" data-calendar-caption aria-live="polite">칸을 누르면 그날 읽은 글을 봅니다.</p>
     </div>
   </section>
 </BaseLayout>
 
 <script>
   const grid = document.querySelector<HTMLElement>('[data-calendar]');
-  const caption = document.querySelector<HTMLElement>('[data-calendar-caption]');
   const scroller = grid?.closest<HTMLElement>('.calendar__scroll');
 
   // 좁은 화면에서는 최근 날짜가 먼저 보이도록 오른쪽 끝으로 맞춰 둔다.
@@ -145,7 +131,7 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
     scroller.scrollLeft = scroller.scrollWidth;
   }
 
-  if (grid && caption) {
+  if (grid) {
     grid.addEventListener('click', (event) => {
       const target = event.target as HTMLElement | null;
       const cell = target?.closest<HTMLElement>('[data-date]');
@@ -153,18 +139,6 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
 
       grid.querySelectorAll('.is-active').forEach((element) => element.classList.remove('is-active'));
       cell.classList.add('is-active');
-
-      let titles: string[] = [];
-      try {
-        titles = JSON.parse(cell.dataset.titles ?? '[]');
-      } catch {
-        titles = [];
-      }
-
-      const label = (cell.dataset.date ?? '').replace(/-/g, '.');
-      caption.textContent = titles.length
-        ? `${label} · ${titles.length}편 — ${titles.join(' · ')}`
-        : `${label} · 읽은 글 없음`;
     });
   }
 </script>
