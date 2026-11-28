@@ -84,6 +84,14 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
         <span><strong>{calendar.activeDays}</strong>일 읽음</span>
         <span><strong>{calendar.total}</strong>편</span>
         {calendar.lastRead && <span>마지막 {calendar.lastRead}</span>}
+        <span class="calendar__legend" aria-hidden="true">
+          적음
+          <i class="calendar__swatch" />
+          <i class="calendar__swatch calendar__cell--l1" />
+          <i class="calendar__swatch calendar__cell--l2" />
+          <i class="calendar__swatch calendar__cell--l3" />
+          많음
+        </span>
       </p>
       <div class="calendar__scroll">
         <div class="calendar__inner" style={`--weeks:${calendar.weeks.length}`}>

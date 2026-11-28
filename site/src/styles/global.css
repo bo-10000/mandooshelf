@@ -21,9 +21,9 @@
   --unread-soft: #fdefe9;
   /* 읽기 달력 잔디 — 0(비어 있음)부터 3편 이상까지 */
   --grass-0: #eaeae7;
-  --grass-1: #cdeccf;
-  --grass-2: #7fce9a;
-  --grass-3: #2e9e62;
+  --grass-1: #b9e7c4;
+  --grass-2: #63c882;
+  --grass-3: #2f9e5f;
   --shadow: 0 1px 2px rgba(18, 18, 24, 0.04), 0 6px 20px -12px rgba(18, 18, 24, 0.18);
   --shadow-lift: 0 2px 4px rgba(18, 18, 24, 0.05), 0 14px 28px -16px rgba(18, 18, 24, 0.24);
   --radius: 14px;
@@ -65,9 +65,9 @@ html.dark {
   --unread: #ff9f78;
   --unread-soft: #2a1a14;
   --grass-0: #20212a;
-  --grass-1: #17452c;
-  --grass-2: #1f7246;
-  --grass-3: #46b97a;
+  --grass-1: #0f4a2b;
+  --grass-2: #177e46;
+  --grass-3: #3fbc74;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -16px rgba(0, 0, 0, 0.8);
   --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.45), 0 18px 32px -18px rgba(0, 0, 0, 0.9);
 }
@@ -376,6 +376,23 @@ p {
   margin-bottom: var(--space-4);
 }
 
+.calendar__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.calendar__swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--grass-0);
+}
+
 /* 모바일에서는 이 안에서만 가로로 스크롤되어 페이지 폭은 늘지 않는다. */
 .calendar__scroll {
   overflow-x: auto;
@@ -445,7 +462,8 @@ p {
 }
 
 .calendar__cell.is-active {
-  box-shadow: 0 0 0 1.5px var(--fg);
+  outline: 1px solid var(--fg);
+  outline-offset: 1px;
 }
 
 .calendar__caption {
