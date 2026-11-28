@@ -139,6 +139,12 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
 <script>
   const grid = document.querySelector<HTMLElement>('[data-calendar]');
   const caption = document.querySelector<HTMLElement>('[data-calendar-caption]');
+  const scroller = grid?.closest<HTMLElement>('.calendar__scroll');
+
+  // 좁은 화면에서는 최근 날짜가 먼저 보이도록 오른쪽 끝으로 맞춰 둔다.
+  if (grid && scroller && scroller.scrollWidth > scroller.clientWidth) {
+    scroller.scrollLeft = scroller.scrollWidth;
+  }
 
   if (grid && caption) {
     grid.addEventListener('click', (event) => {
