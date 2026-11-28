@@ -1,9 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="mandooshelf">
-  <rect width="64" height="64" rx="15" fill="#16161a" />
-  <g stroke="#fbfbfa" stroke-width="4.5" stroke-linecap="round">
-    <path d="M18 22h28" />
-    <path d="M18 32h20" />
-    <path d="M18 42h24" />
-  </g>
-  <circle cx="47" cy="43" r="4.5" fill="#a5b2ff" />
+  <rect width="64" height="64" rx="14" fill="#1b130e"/>
+  <rect x="11" y="53.6" width="42" height="4.2" rx="2.1" fill="#D9A15C"/>
+  <path d="M 32 13.5 C 44 13.5 51 21 53.4 30.5 C 54.8 35.5 54.6 39.5 53.9 42.8 C 52.8 47.2 46.4 49.8 32 49.8 C 17.6 49.8 11.2 47.2 10.1 42.8 C 9.4 39.5 9.2 35.5 10.6 30.5 C 13 21 20 13.5 32 13.5 Z" fill="#FFE8C4"/>
+  <path d="M 20.17 19.40 L 24.35 25.02" stroke="#1b130e" stroke-width="4.6" stroke-linecap="round"/>
+  <path d="M 32.00 15.80 L 32.00 22.80" stroke="#1b130e" stroke-width="4.6" stroke-linecap="round"/>
+  <path d="M 43.83 19.40 L 39.65 25.02" stroke="#1b130e" stroke-width="4.6" stroke-linecap="round"/>
 </svg>
