@@ -457,6 +457,11 @@ p {
   cursor: default;
 }
 
+.calendar__cell:focus-visible {
+  outline: 1.5px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .calendar__cell:hover {
   outline: 1px solid var(--line-strong);
   outline-offset: 1px;
