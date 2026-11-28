@@ -1187,6 +1187,28 @@ p {
   }
 }
 
+/* 넓은 화면: 본문을 화면 가운데에 두도록 양 옆을 같은 폭으로 나누고, 목차는 오른쪽에 붙인다. */
+@media (min-width: 1200px) {
+  .container.container--wide {
+    max-width: 1320px;
+  }
+
+  .note-page {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 740px) minmax(0, 1fr);
+    grid-template-areas:
+      '. main toc'
+      '. prose toc';
+    column-gap: 40px;
+  }
+
+  /* 목차는 본문 바로 오른쪽에서 시작해 남은 자리를 쓰되, 너무 넓어지지 않게 한다. */
+  .note-page > .note-toc {
+    justify-self: start;
+    width: 100%;
+    max-width: 240px;
+  }
+}
+
 /* --------------------------------- 목차 --------------------------------- */
 
 /* 좁은 화면에서는 글 위에 놓이는 상자, 넓은 화면에서는 글 옆에 붙는 사이드바. */
@@ -1205,6 +1227,58 @@ p {
   font-size: 10.5px;
   letter-spacing: 0.06em;
   color: var(--muted);
+}
+
+/* 목차를 여닫는 머리 — 좁은 화면에서만 보인다. */
+.note-toc__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 46px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.note-toc__toggle-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--fg-1);
+}
+
+.note-toc__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.note-toc__chevron {
+  width: 15px;
+  height: 15px;
+  margin-left: auto;
+  color: var(--muted);
+  transition: transform 0.18s ease;
+}
+
+.note-toc__toggle[aria-expanded='true'] .note-toc__chevron {
+  transform: rotate(180deg);
 }
 
 .note-toc__list {
@@ -1259,6 +1333,31 @@ p {
   font-weight: 650;
 }
 
+/* 좁은 화면: 접힌 채로 시작하는 목차 상자. 넓은 화면 규칙은 아래 @media에서 덮어쓴다. */
+@media (max-width: 1023.98px) {
+  .note-toc {
+    margin-top: var(--space-5);
+    padding: 0;
+  }
+
+  .note-toc__toggle {
+    padding: 0 var(--space-4);
+  }
+
+  .note-toc__label {
+    display: none;
+  }
+
+  .note-toc__list {
+    display: none;
+    padding: 0 var(--space-4) var(--space-3);
+  }
+
+  .note-toc__toggle[aria-expanded='true'] ~ .note-toc__list {
+    display: grid;
+  }
+}
+
 /* 넓은 화면: 본문 옆에 붙어 따라오는 목차. */
 @media (min-width: 1024px) {
   .note-toc {
@@ -1278,6 +1377,11 @@ p {
 
   .note-toc__label {
     margin-bottom: var(--space-3);
+  }
+
+  /* 넓은 화면에서는 늘 펼쳐 두고, 여닫는 머리는 숨긴다. */
+  .note-toc__toggle {
+    display: none;
   }
 }
 
@@ -1533,9 +1637,6 @@ html.dark .astro-code span {
   }
   .prose {
     font-size: 15px;
-  }
-  .note-toc {
-    padding: var(--space-4);
   }
   .note-toc__link {
     font-size: 13px;

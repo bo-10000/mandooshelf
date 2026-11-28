@@ -139,8 +139,20 @@ const description = note.source ? `${note.title} — ${note.source}` : note.titl
     {
       toc.length > 1 && (
         <nav class="note-toc" aria-label="목차">
+          <button
+            class="note-toc__toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="note-toc-list"
+          >
+            <span class="note-toc__toggle-title">목차</span>
+            <span class="note-toc__count">{toc.length}</span>
+            <svg class="note-toc__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6"></path>
+            </svg>
+          </button>
           <p class="note-toc__label">목차</p>
-          <ol class="note-toc__list">
+          <ol class="note-toc__list" id="note-toc-list">
             {toc.map((heading) => (
               <li class:list={['note-toc__item', `note-toc__item--d${Math.min(heading.depth, 4)}`]}>
                 <a class="note-toc__link" href={`#${heading.slug}`} data-toc-link>
@@ -203,6 +215,26 @@ const description = note.source ? `${note.title} — ${note.source}` : note.titl
     });
   });
 
+  // 좁은 화면에서는 목차를 접은 채로 시작해 머리를 누르면 펼친다(넓은 화면에서는 CSS가 늘 펼쳐 둔다).
+  const tocNav = document.querySelector<HTMLElement>('.note-toc');
+  const tocToggle = tocNav?.querySelector<HTMLButtonElement>('.note-toc__toggle') ?? null;
+  const desktopQuery = window.matchMedia('(min-width: 1024px)');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SCROLL_OFFSET = 76; // 본문 제목의 scroll-margin-top과 같은 값.
+
+  const setTocExpanded = (expanded: boolean) => {
+    tocToggle?.setAttribute('aria-expanded', String(expanded));
+  };
+
+  if (tocToggle) {
+    tocToggle.addEventListener('click', () => {
+      setTocExpanded(tocToggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    // 화면 폭이 바뀌면 넓은 화면은 늘 펼침, 좁은 화면은 다시 접힘으로 맞춘다.
+    desktopQuery.addEventListener('change', (event) => setTocExpanded(event.matches));
+  }
+
   // 지금 읽고 있는 구역을 목차에서 표시한다.
   const tocLinks = new Map<string, HTMLAnchorElement>();
   document.querySelectorAll<HTMLAnchorElement>('.note-toc [data-toc-link]').forEach((link) => {
@@ -212,7 +244,6 @@ const description = note.source ? `${note.title} — ${note.source}` : note.titl
   });
 
   if (tocLinks.size > 0) {
-    const tocNav = document.querySelector<HTMLElement>('.note-toc');
     const headings = Array.from(
       document.querySelectorAll<HTMLElement>('.prose :is(h2, h3, h4, h5, h6)[id]'),
     ).filter((heading) => tocLinks.has(heading.id));
@@ -280,7 +311,18 @@ const description = note.source ? `${note.title} — ${note.source}` : note.titl
       window.addEventListener('resize', requestUpdate, { passive: true });
 
       tocLinks.forEach((link, id) => {
-        link.addEventListener('click', () => setActive(id));
+        link.addEventListener('click', (event) => {
+          // 좁은 화면: 목차를 접어 본문을 보여 주고, 접힌 만큼 달라진 위치로 직접 이동한다.
+          const target = !desktopQuery.matches ? document.getElementById(id) : null;
+          if (target) {
+            event.preventDefault();
+            setTocExpanded(false);
+            const top = target.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET;
+            window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
+            history.replaceState(null, '', `#${id}`);
+          }
+          setActive(id);
+        });
       });
 
       update();
