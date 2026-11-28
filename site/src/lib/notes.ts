@@ -318,8 +318,6 @@ export type CalendarLevel = 0 | 1 | 2 | 3;
 export interface CalendarDay {
   /** YYYY-MM-DD (KST 기준 날짜) */
   date: string;
-  /** 11.28 */
-  label: string;
   count: number;
   level: CalendarLevel;
   /** 오늘 이후라 아직 채울 수 없는 칸 */
@@ -406,7 +404,6 @@ export function readCalendar(notes: Note[], weekCount = 26): ReadCalendar {
       }
       days.push({
         date: key,
-        label: `${date.getUTCMonth() + 1}.${String(date.getUTCDate()).padStart(2, '0')}`,
         count: titles.length,
         level: Math.min(titles.length, 3) as CalendarLevel,
         future,

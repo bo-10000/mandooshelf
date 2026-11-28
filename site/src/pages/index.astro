@@ -120,10 +120,9 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
                     tabindex="-1"
                     class={`calendar__cell calendar__cell--l${day.level}`}
                     data-date={day.date}
-                    data-label={day.label}
                     data-titles={JSON.stringify(day.titles)}
-                    title={`${day.label} · ${day.count > 0 ? `${day.count}편 읽음` : '읽은 글 없음'}`}
-                    aria-label={`${day.label} · ${day.count > 0 ? `${day.count}편 읽음` : '읽은 글 없음'}`}
+                    title={`${day.date} · ${day.count > 0 ? `${day.count}편 읽음` : '읽은 글 없음'}`}
+                    aria-label={`${day.date} · ${day.count > 0 ? `${day.count}편 읽음` : '읽은 글 없음'}`}
                   />
                 ),
               )
@@ -162,7 +161,7 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
         titles = [];
       }
 
-      const label = cell.dataset.label ?? '';
+      const label = (cell.dataset.date ?? '').replace(/-/g, '.');
       caption.textContent = titles.length
         ? `${label} · ${titles.length}편 — ${titles.join(' · ')}`
         : `${label} · 읽은 글 없음`;
