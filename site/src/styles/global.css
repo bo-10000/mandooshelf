@@ -468,8 +468,9 @@ p {
 }
 
 .calendar__cell.is-active {
-  outline: 1.5px solid var(--accent);
-  outline-offset: 1px;
+  outline: 1px solid var(--accent);
+  outline-offset: 0;
+  transform: scale(1.2);
 }
 
 .calendar__caption {
