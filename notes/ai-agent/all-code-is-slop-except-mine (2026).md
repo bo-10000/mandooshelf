@@ -4,7 +4,8 @@ published_at: 2026-11-14
 source: "AI Engineer"
 url: "https://www.youtube.com/watch?v=O_zcc6Xl12g"
 tags: [coding-agents, verification, lint-rules, pstack]
-status: unread
+status: read
+read_at: 2026-11-28
 ---
 
 ## 한 줄 요약
