@@ -583,7 +583,7 @@ p {
   list-style: none;
 }
 
-/* 카드 한 장 = 메인 노트 카드와 같은 정보 순서 */
+/* 카드 한 장 = 카테고리 뱃지 + 제목, 아래 한 줄 출처 · 발행일 */
 .calendar-sheet__card {
   display: block;
   padding: var(--space-4);
@@ -602,9 +602,12 @@ p {
 
 .calendar-sheet__card-top {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-3);
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.calendar-sheet__card-top .badge {
+  flex: none;
 }
 
 .calendar-sheet__card-title {
@@ -619,13 +622,6 @@ p {
 
 .calendar-sheet__card:hover .calendar-sheet__card-title {
   color: var(--accent);
-}
-
-.calendar-sheet__tags {
-  display: inline-flex;
-  flex: 0 1 auto;
-  flex-wrap: wrap;
-  gap: 5px;
 }
 
 .calendar-sheet__card-meta {

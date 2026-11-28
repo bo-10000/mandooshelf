@@ -319,11 +319,14 @@ export interface CalendarNoteLink {
   title: string;
   /** 글 상세 페이지 링크 (site/base 포함) */
   href: string;
+  /** 카테고리 폴더 id (recommendation · ai-agent · etc) */
+  category: string;
+  /** 카테고리 표기 (추천 시스템 · AI 에이전트 · 기타) — 제목 앞 뱃지 */
+  categoryTitle: string;
   /** 출처 표기 — 카드와 같이 frontmatter 원문 그대로 */
   source: string;
   /** 발행일 표기 (2026.11.27), 없으면 빈 문자열 */
   date: string;
-  tags: string[];
 }
 
 export interface CalendarDay {
@@ -412,9 +415,10 @@ export function readCalendar(notes: Note[], weekCount = 26): ReadCalendar {
       const dayNotes = (byDay.get(key) ?? []).map((note) => ({
         title: note.title,
         href: note.href,
+        category: note.category,
+        categoryTitle: note.categoryTitle,
         source: note.source,
         date: note.published?.label ?? '',
-        tags: note.tags,
       }));
       if (!future) {
         total += dayNotes.length;

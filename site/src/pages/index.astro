@@ -212,9 +212,9 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
     interface SheetNote {
       title: string;
       href: string;
+      categoryTitle?: string;
       source?: string;
       date?: string;
-      tags?: string[];
     }
     const dayNotes = JSON.parse(cell.dataset.notes || '[]') as SheetNote[];
 
@@ -227,7 +227,7 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
       empty.textContent = '그날은 읽은 글이 없어요.';
       sheetList.append(empty);
     } else {
-      // 카드 한 장을 메인 노트 카드와 같은 순서(제목 + 태그 / 출처 · 발행일)로 그린다.
+      // 카드 한 장 = 카테고리 뱃지 + 제목(한 줄) 아래 출처 · 발행일.
       dayNotes.forEach((note) => {
         const item = document.createElement('li');
         item.className = 'calendar-sheet__item';
@@ -239,29 +239,17 @@ const calendarDays = calendar.weeks.flatMap((week) => week.days);
         const top = document.createElement('span');
         top.className = 'calendar-sheet__card-top';
 
+        if (note.categoryTitle) {
+          const category = document.createElement('span');
+          category.className = 'badge badge--category';
+          category.textContent = note.categoryTitle;
+          top.append(category);
+        }
+
         const title = document.createElement('span');
         title.className = 'calendar-sheet__card-title';
         title.textContent = note.title;
         top.append(title);
-
-        const tags = Array.isArray(note.tags) ? note.tags : [];
-        if (tags.length > 0) {
-          const tagWrap = document.createElement('span');
-          tagWrap.className = 'calendar-sheet__tags';
-          tags.slice(0, 4).forEach((tag) => {
-            const chip = document.createElement('span');
-            chip.className = 'tag';
-            chip.textContent = tag;
-            tagWrap.append(chip);
-          });
-          if (tags.length > 4) {
-            const more = document.createElement('span');
-            more.className = 'tag tag--more';
-            more.textContent = `+${tags.length - 4}`;
-            tagWrap.append(more);
-          }
-          top.append(tagWrap);
-        }
         link.append(top);
 
         const metaParts = [note.source, note.date].filter((part): part is string => !!part);
