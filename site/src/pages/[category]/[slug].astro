@@ -212,6 +212,7 @@ const description = note.source ? `${note.title} — ${note.source}` : note.titl
   });
 
   if (tocLinks.size > 0) {
+    const tocNav = document.querySelector<HTMLElement>('.note-toc');
     const headings = Array.from(
       document.querySelectorAll<HTMLElement>('.prose :is(h2, h3, h4, h5, h6)[id]'),
     ).filter((heading) => tocLinks.has(heading.id));
@@ -219,6 +220,15 @@ const description = note.source ? `${note.title} — ${note.source}` : note.titl
     if (headings.length > 0) {
       const ACTIVE_LINE = 96; // 상단 헤더(56px) 아래 이 높이를 지난 제목을 '보고 있는 구역'으로 본다.
       let activeId: string | null = null;
+
+      // 사이드바가 화면보다 길어 안에서 스크롤될 때, 표시한 항목이 보이게 맞춘다.
+      const revealLink = (link: HTMLAnchorElement) => {
+        if (!tocNav || tocNav.scrollHeight <= tocNav.clientHeight + 2) return;
+        const linkBox = link.getBoundingClientRect();
+        const navBox = tocNav.getBoundingClientRect();
+        if (linkBox.top < navBox.top) tocNav.scrollTop += linkBox.top - navBox.top - 8;
+        else if (linkBox.bottom > navBox.bottom) tocNav.scrollTop += linkBox.bottom - navBox.bottom + 8;
+      };
 
       const setActive = (id: string | null) => {
         if (id === activeId) return;
@@ -232,6 +242,7 @@ const description = note.source ? `${note.title} — ${note.source}` : note.titl
         if (next) {
           next.classList.add('is-active');
           next.setAttribute('aria-current', 'location');
+          revealLink(next);
         }
       };
 
