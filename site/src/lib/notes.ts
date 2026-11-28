@@ -319,6 +319,11 @@ export interface CalendarNoteLink {
   title: string;
   /** 글 상세 페이지 링크 (site/base 포함) */
   href: string;
+  /** 출처 표기 — 카드와 같이 frontmatter 원문 그대로 */
+  source: string;
+  /** 발행일 표기 (2026.11.27), 없으면 빈 문자열 */
+  date: string;
+  tags: string[];
 }
 
 export interface CalendarDay {
@@ -404,7 +409,13 @@ export function readCalendar(notes: Note[], weekCount = 26): ReadCalendar {
       const date = new Date(firstSunday.getTime() + (w * 7 + d) * DAY_MS);
       const key = dayKey(date);
       const future = date.getTime() > today.getTime();
-      const dayNotes = (byDay.get(key) ?? []).map((note) => ({ title: note.title, href: note.href }));
+      const dayNotes = (byDay.get(key) ?? []).map((note) => ({
+        title: note.title,
+        href: note.href,
+        source: note.source,
+        date: note.published?.label ?? '',
+        tags: note.tags,
+      }));
       if (!future) {
         total += dayNotes.length;
         if (dayNotes.length > 0) activeDays += 1;
