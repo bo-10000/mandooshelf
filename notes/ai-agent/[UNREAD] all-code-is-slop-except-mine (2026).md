@@ -3,7 +3,7 @@ title: "다 슬롭이다, 내 코드만 빼고: 에이전트를 믿게 만드는
 published_at: 2026-11-14
 source: "AI Engineer"
 url: "https://www.youtube.com/watch?v=O_zcc6Xl12g"
-tags: [ai-agent, coding-agents, agents-md, lint-rules, codebase-design, runtime-verification, formal-verification, tla-plus, lean, dune, grok-bot, electron, software-factory]
+tags: [ai-agent, coding-agents, agents-md, lint-rules, codebase-design, runtime-verification, formal-verification, tla-plus, lean, dune, grok-bot, electron, software-factory, pstack, agent-skills]
 status: unread
 ---
 
@@ -95,6 +95,75 @@ status: unread
 - 기반이 갖춰지면 바깥 루프(factory)는 그 위에 쉽게 얹힌다. Grok Bot에는 커넥터와 루틴으로 Cursor 클라우드 에이전트·프로젝트를 띄워 수백에서 수천 에이전트를 조율하는 구조가 있다.
 - 그 예: 새 릴리스를 자를 때마다 Cursor 프로젝트를 자동으로 띄워 **앱 전체와 빌드를 퍼징**하고, 실제 사용자처럼 앱을 쓰면서 버그를 찾고, 버그마다 **수정 PR을 열어 자동 머지**한다. 미친 소리 같지만, 코드베이스가 충분히 좋아서 PR이 기본적으로 좋게 나오고, 들어가는 제품 코드 대부분이 더는 깊은 사람 리뷰를 필요로 하지 않기 때문에 가능한 일이다.
 
+## 공개된 스킬·도구와 실제 코드베이스 적용법
+
+발표에 나온 검증·상태도·병렬 실행 도구는 말로만 끝나지 않고 공개돼 있다. 2026-11-28에 저장소를 직접 열어 확인한 내용으로, 무엇이 들어 있고 내 저장소에는 어떻게 가져다 쓰는지 정리한다.
+
+### pstack — poteto가 매일 쓰는 스킬 묶음 (Cursor 플러그인, 스킬 59개)
+
+- 위치: https://github.com/cursor/plugins/tree/main/pstack — MIT 라이선스, `plugin.json` 기준 버전 0.15.48(2026-11-28 확인). 발표에서 "내가 매일 쓰는 스킬"이라고 한 그 묶음이고, 저장소 소개도 "더 적지만 더 좋은 코드를 쓰게 해 준다"는 쪽이다.
+- 설치: Cursor에서는 `/add-plugin pstack` 한 줄. Claude Code에서는 `/plugin marketplace add cursor/plugins` 다음 `/plugin install pstack@cursor-plugins`로 설치하고, 명령 앞에 `pstack:`이 붙는다(`/poteto-mode`가 `/pstack:poteto-mode`가 된다). 설치 뒤 `/setup-pstack`으로 역할별 모델을 고르고, 작업을 시작할 때 `/poteto-mode`를 쓴다.
+- 진입점 `poteto-mode`: 요청을 읽어 22개 플레이북(investigation, bug fix, perf, hillclimb, runtime forensics, feature, refactoring, prototype, visual parity, eval, babysit, shipping, autonomous run, autopilot, session pickup, multi-phase plan, opening a PR 등) 중 하나에 매칭하고, 그 단계를 그대로 복사한 todo list를 연 뒤 필요한 스킬로 라우팅한다. 계획 스킬은 기본이 아니다 — "최선의 스펙은 코드"라는 입장이다.
+
+**검증 생성·유지 (발표의 핵심과 직결)**
+
+- `create-verification-skill`: 프로젝트에 앱 동작을 증명할 스크립트가 없을 때, 사용자가 앱을 쓰는 방식 그대로 조작하는 프로젝트 로컬 검증 스킬을 만든다. 언어·프레임워크·플랫폼을 가리지 않는다. 결과물이 `SKILL.md`와 feature map(`references/features/`)이다.
+- `maintain-verification-skill`: feature map이 앱과 어긋났는지 주기적으로 점검한다. 기능별 소스 리더를 병렬로 돌리고 실제 앱을 한 번 구동해 본 뒤, 증명된 수정만 담아 최대 PR 하나를 낸다(제품 코드는 건드리지 않는다).
+- `create-formal-verification-skill`: 테스트가 닿지 않는 곳 — 동시성, 재시도, 상태 기계, 파서, unsafe 코드 — 에서 성질 하나를 골라 TLA+·Lean 같은 맞는 도구로 검증하고, 코드가 바뀔 때마다 다시 돌릴 프로젝트 로컬 스킬을 만든다.
+- `maintain-formal-verification-skill`: 검증이 덮는 코드가 바뀐 뒤 모델·하네스·속성을 지금 코드에 맞게 고치고 다시 돌려, 실패가 검증 쪽 드리프트인지 코드 버그인지 갈라 말한다.
+
+**시각화·병렬 실행**
+
+- `statechart`: 상태를 오가는 시스템의 TLA+ 모델을 검사해, 사용자가 보는 상태를 Mermaid 상태도로 그린다. 규칙을 깨는 상태마다 거기까지 가는 최단 경로를 함께 준다.
+- `swarm`: 워커 N개를 병렬로 띄워 각자 다른 조각이나 경쟁을 맡기고, 다 끝나면 리포트 하나로 모은다. 예: `packages/` 아래 패키지마다 `check.sh`를 워커 하나씩 돌려 한 장으로 정리.
+- `arena`: 같은 일을 N개 시도해 놓고 각 시도의 좋은 부분을 골라 합친다. `interrogate`는 여러 모델이 diff를 깨뜨리려 시도하고, 실행으로 증명된 지적만 남긴다.
+
+**코드 품질·가드레일**
+
+- `no-comments`: Comment Sicko라는 읽기 전용 서브에이전트로 주석을 걷어내고, 받아들인 지적을 고친 뒤 "이 제약이 정당하다"는 주장에는 주석 대신 린트·타입·런타임 검사로 인코딩할 방법을 제안한다.
+- `unslop`: 글에서 AI 티를 지운다(코드가 아니라 산문 쪽 도구).
+- `typescript-best-practices`: `type-system-discipline` 원칙을 TS 문법 수준으로 풀어 준다.
+- `principle-*` 24개: 원칙 하나에 짧은 스킬 하나. core / architecture / verification / delegation / meta 다섯 묶음이고, 발표 내용과 바로 이어지는 것들이 있다.
+  - `encode-lessons-in-structure`: 규칙을 글로 더 쓰지 말고 린트·메타데이터 플래그·런타임 검사·스크립트로 인코딩한다.
+  - `prove-it-works`: 완료를 선언하기 전에 실제 산출물로 확인한다(기능을 돌려 보고, 실제 값을 읽고, diff를 본다). "컴파일된다"는 증거가 아니다.
+  - `fix-root-causes`: 증상마다 시스템이 처음 잘못된 지점을 찾아 거기서 고친다. 가드는 그 상태가 정당할 때만 수정이다.
+  - `guard-the-context-window`: 대량 작업은 서브에이전트로 보내고 메인 스레드에는 요약만 둔다.
+  - 그 밖에 `laziness-protocol`, `subtract-before-you-add`, `boundary-discipline`, `type-system-discipline`, `make-operations-idempotent`, `test-behavior-not-implementation` 등.
+- 그 밖에 `correct`(저장소에서 에이전트가 반복하는 실수를 캐내 아키텍처 → 타입 → 고치는 법을 알려 주는 린트 → 테스트 → 문서 순으로 막고, 규칙마다 그걸 강제하는 수단을 짝지어 둔다), `tdd`, `benchmark-checklist`, `technical-writing`, `reflect`, `how`, `why`, `teach`가 있다.
+
+**가져다 쓰는 방법**
+
+- 통째로: Cursor에서 `/add-plugin pstack` → `/setup-pstack` → 필요할 때 `/poteto-mode`.
+- 골라서: `pstack/skills/스킬이름/SKILL.md`(와 `references/`)를 저장소의 `.cursor/skills/스킬이름/`에 복사한다. 스킬은 마크다운 폴더라 다른 에이전트의 스킬 폴더에도 같은 방식으로 넣을 수 있다. 팀과 함께 쓰려면 저장소에 커밋해 두는 편이 낫다(feature map을 "팀이 공유하는 기억"으로 쓰는 방식과 같다).
+- 걸리는 점: pstack은 Cursor를 기준으로 쓰였고 bugbot·automations처럼 Cursor 전용 기능을 쓰는 단계가 있다(Claude Code에서는 그 단계만 한 줄 안내와 함께 건너뛴다). 59개 스킬은 서로를 참조하므로 하나만 복사하면 그 스킬이 부르는 원칙·플레이북이 빠질 수 있다. 처음엔 `create-verification-skill`처럼 자기완결적인 것부터 떼어 쓰는 편이 안전하다.
+
+### poteto 개인 GitHub 공개 저장소 3종
+
+- `poteto/how` — https://github.com/poteto/how
+  - 코드베이스 설명 전용 Cursor 플러그인(`/how` 스킬 하나). "이 서브시스템은 어떻게 돌아가나"를 시니어가 새 영역에 온보딩하듯 설명한다: Overview, Key Concepts, How It Works, Where Things Live, Gotchas.
+  - 질문이 여러 파일·서비스에 걸치면 탐색 각도를 2에서 4개로 쪼개 explorer 서브에이전트를 병렬로 띄우고, 합성 에이전트가 그 결과를 하나의 설명으로 맞춘다. 단순한 질문은 팬아웃 없이 한 번에 끝낸다.
+  - "설계도 비판해 줘"를 덧붙이면 Critique 모드로 넘어가 여러 모델의 독립 비평가를 붙인다.
+  - 적용: `skills/how/` 폴더를 `.cursor/skills/how/`로 복사하거나 플러그인으로 추가한다. `SKILL.md`가 라우팅을 맡고 `references/`의 프롬프트 템플릿을 서브에이전트에 넘긴다.
+- `poteto/noodle` — https://github.com/poteto/noodle
+  - 스킬 기반 다중 에이전트 오케스트레이션. Go로 만들었다. 주방 비유를 그대로 쓴다 — 스케줄러(헤드 셰프)가 `.noodle/mise.json`(백로그·활성 에이전트·이력·등록 스킬)을 읽어 `.noodle/orders-next.json`에 주문을 쓰고, 루프가 주문을 승격해 격리된 워크트리에서 에이전트 세션을 띄운다. 에이전트는 스킬 하나를 지시서로 받고, 끝나면 워크트리가 main으로 머지된다.
+  - 최소 루프는 "스케줄 → 실행"이고, 품질 리뷰·회고 같은 단계는 그 단계용 스킬을 써서 붙인다. 스킬 frontmatter에 `schedule` 값을 넣으면 자율 실행 대상이 되고, 없으면 평소처럼 직접 부른다.
+  - 적용: `brew install poteto/tap/noodle`(리눅스·윈도는 릴리스 바이너리), `.agents/skills/noodle/SKILL.md`와 references 복사, `.noodle.toml`에 Claude/Codex 중 provider 지정. 문서는 https://noodle-run.github.io/noodle/.
+  - 성격: 저장소 안에 에이전트가 CLI를 쓰는 법을 가르치는 스킬이 따로 있어, 오케스트레이션 자체를 스킬로 배우는 구조다. 혼자 쓰는 작은 저장소보다 여러 작업을 병렬로 돌리는 팀·장기 작업에 맞다.
+- `poteto/brainmaxxing` — https://github.com/poteto/brainmaxxing
+  - Claude Code용 "멍청할 만큼 단순한" 영속 메모리. 마크다운 vault(`brain/`)를 세션 시작에 읽고, 배운 게 있으면 거기에 쓴다. Obsidian vault라서 에이전트 기억을 직접 열어 볼 수 있다.
+  - 원칙 16개를 시작 내용으로 주고 스킬 6개를 준다. 학습 루프가 넷: `reflect`(세션 끝이나 교정 직후 대화에서 기억할 것을 뽑아 씀), `ruminate`(지난 대화를 훑어 reflect가 놓친 패턴을 캐냄), `meditate`(쌓인 brain과 스킬을 대조해 모순·낡은 노트를 정리하고, 여러 항목에 흩어진 암묵 원칙을 드러냄). 작업 지원이 둘: `plan`(여러 파일에 걸친 작업을 단계 계획으로 쪼개 `brain/plans/`에 씀, 구현은 하지 않음), `review`(원칙에 근거해 코드·계획을 심각도와 트레이드오프로 리뷰). 나머지 둘은 훅으로, 시작할 때 brain 인덱스를 넣고 파일이 바뀌면 인덱스를 다시 만든다.
+  - 적용: Claude Code에 저장소를 가리키면 `brain/`, `.agents/skills/`, `.claude/hooks/`를 복사하고 `CLAUDE.md` 지침을 프로젝트에 합친다. 전부 쓸 필요는 없고 `reflect`만 돌려도 값의 대부분이 나온다고 한다.
+  - 참고: pstack이 "저장소에 커밋되는 feature map은 팀이 공유하는 기억"이라고 말한 것과 결이 같다. 다만 brainmaxxing은 앱 검증이 아니라 대화에서 배운 규칙·취향을 쌓는 쪽이다.
+
+### 실제 코드베이스에 바로 적용해 볼 4단계
+
+발표의 순서(안쪽 루프 먼저)를 내 저장소에 옮긴다면 이 순서가 된다. ①·②는 결정적 층, ③은 입력 정리, ④는 검증 층이다.
+
+- **① 교정을 린트 규칙으로 승격하고, 오류 메시지에 대안을 적기**: 에이전트가 같은 실수를 할 때마다 `AGENTS.md`에 한 줄을 더하는 대신 린트 규칙으로 막는다. 규칙을 어긴 그 순간 읽히도록 "이건 왜 안 되는지, 대신 무엇을 써야 하는지"를 오류 메시지 안에 넣는다. pstack의 `correct`가 쓰는 순서와 같다 — 아키텍처로 없앨 수 있으면 없애고, 안 되면 타입, 그다음이 "고치는 법을 알려 주는 린트"다.
+- **② 폴더 경계·import 규칙을 코드로 잠그기**: `eslint-plugin-boundaries`나 `no-restricted-paths`(`import/no-restricted-paths`, typescript-eslint `no-restricted-imports`)로 잘못된 참조를 빌드 단계에서 막는다. 예: `electron-main`에서 `electron-renderer`로 가는 import 금지. 디렉터리 이름이 설계를 말하고 검사가 그걸 강제하게 만든다.
+- **③ 임시방편 주석과 반창고 코드 청소하기**: "이 `setTimeout`이 왜 필요한지" 설명하는 주석은 다음 에이전트에게 허가증이 된다. 그런 처방이 필요했던 근본 원인을 고치고, 정말 지켜야 할 제약이면 주석 대신 타입·린트·테스트·런타임 검사로 인코딩한다(주석은 쉽게 낡고 아무것도 강제하지 않는다).
+- **④ 고정 검증 명령 하나와 작은 feature map부터**: 매번 일회성 확인 스크립트를 새로 짜게 두지 말고 `npm run verify` 같은 명령 하나를 정해 둔다. 그리고 핵심 기능 몇 개만 담은 작은 `references/features/`에서 시작한다. 파일 하나에 네 칸 — Sub-features(그 기능 안에서 사용자가 할 수 있는 일), How to get to it (user POV)(클릭·단축키로 도달하는 경로), Driving it with CLI(명령과 셀렉터, 무엇을 보면 통과인지), Gotchas(포커스·플랜·데이터 유무 같은 함정과 확인이 실패한 이유). 기능이 늘면 `maintain-verification-skill`로 드리프트를 잡고, 동시성·상태 기계처럼 테스트가 못 닿는 곳은 `create-formal-verification-skill`로 넘긴다.
+
 ## 한계 / 확인되지 않은 것
 
 - 수치는 모두 **발표자·그 팀의 자기 보고**다. 리버트율 0.5%, 227명, 11,000개 같은 값은 통제된 실험이 아니라서 다른 저장소에 그대로 옮겨질 근거는 아니다. "머지 볼륨이 늘면 품질이 오른다"는 인과도 이 발표로는 증명되지 않는다.
@@ -113,4 +182,9 @@ status: unread
 - pstack 가이드: Lauren Tan(poteto), "The Complete Guide to pstack" 중 검증·출시 장 — https://github.com/cursor/plugins/blob/main/pstack/docs/guide/06-verify-and-ship.md
 - 예시 저장소: https://github.com/poteto/verification-skill-example — 가상 앱 Atlas용 검증 스킬과 feature map. 공개 저장소(HTTP 200)로 확인했고, 본문의 feature map 구현 설명(`SKILL.md` 구조, `references/features/` 아래 `README.md`와 기능별 파일, 네 개의 H2)은 이 저장소 파일을 직접 열어 정리했다.
 - 즉 영상에는 feature map이 개념으로만 나오고, **폴더 구조·파일 포맷·`/create-verification-skill`·`/maintain-verification-skill` 자동화·"materialized memory"라는 표현**은 poteto의 pstack 가이드와 예시 저장소에서 가져온 내용이다.
+- pstack 스킬 목록·설명·설치 방법: https://github.com/cursor/plugins/tree/main/pstack (스킬 폴더: https://github.com/cursor/plugins/tree/main/pstack/skills) — 2026-11-28에 `README.md`, `plugin.json`, 주요 `SKILL.md`를 직접 열어 확인했다. 스킬 59개는 `pstack/skills` 디렉터리 항목 수 기준이고, 24개는 `principle-*` 원칙 스킬이다.
+- `poteto/how`: https://github.com/poteto/how — README와 `skills/how/SKILL.md` 기준.
+- `poteto/noodle`: https://github.com/poteto/noodle — README와 `INSTALL.md` 기준, 문서 https://noodle-run.github.io/noodle/.
+- `poteto/brainmaxxing`: https://github.com/poteto/brainmaxxing — README 기준(스킬 6개·원칙 16개, Claude Code용).
+- 위 스킬·도구 설명과 적용법은 이 공개 저장소들에서 가져왔고, "4단계"는 발표 내용을 저장소의 스킬·원칙과 대조해 정리한 것이다.
 - 이 정리는 위 영상의 **전체 스크립트(자동 생성 자막)** 를 바탕으로 했다. 자막 오인식이 일부 있어(Grok Bot이 Grabbot/Grockbot/Grathbot 등으로 표기됨) 고유명사는 발표 페이지 표기를 따랐고, 화면에 띄운 슬라이드 이미지는 옮기지 않았다.
